@@ -336,26 +336,6 @@ class OneDimRun(process.MCRun):
     POOL = 'POOL'
 
 
-
-    def run_(self, prob, steps, smpl_classes, **kwargs):
-        samplers = [cls(prob, steps, **kwargs) for cls in smpl_classes]
-        walker = self.generate_state(**kwargs)
-
-        edge = steps/2
-        for step in range(steps):
-            if step >= step/2:
-                prob['B'] = 1
-                prob['F'] = 1
-                prob['UF'] = 1
-                prob['UB'] = 1
-            dt = walker.get_lifetime(prob)
-            old_cfg = copy.deepcopy(walker.get_cfg())
-            connection, new_cfg =  walker.reconfigure(prob)
-            self.sample(samplers, step, dt, old_cfg, new_cfg, connection)
-        self.on_exit(samplers, step, dt, old_cfg, new_cfg, connection)
-        return samplers
-
-
     def get_rnd(self, length):
         cis = [0]
         for i in range(length-1):

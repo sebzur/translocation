@@ -28,8 +28,7 @@ class Current(process.Sampler):
         j_std = resu.std()
         j_error = j_std/numpy.sqrt(repeats)
         postfix = ''
-        pth_prefix = '/home/seba/codebase/kmc/translocation/scripts'
-        #pth_prefix = '/home/sebzur/kmc/translocation/scripts'
+        pth_prefix = kwargs.get('path')
         filename = '%s/results/S%d_H%.2f_N%d_C%d_R%d%s' % (pth_prefix, steps, prob['H'], kwargs.get('length'), 3, repeats, postfix)
         data_file = open(filename, 'a')
         eps = numpy.log(prob['F']) * 2.0

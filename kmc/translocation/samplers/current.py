@@ -110,8 +110,8 @@ class IonCurrent(process.Sampler):
     def merge(cls, results, prob, steps, repeats, **kwargs):
         resu = numpy.array(list( itertools.chain(*[ i.result for i in results])))
         pth_prefix = kwargs.get('path')
-        postfix = 'ion'
-        filename = '%s/results/S%d_H%.2f_N%d_C%d_R%d%s' % (pth_prefix, steps, prob['H'], kwargs.get('length'), 3, repeats, postfix)
+        postfix = '_ion'
+        filename = '%s/results/S%d_H%.2f_N%d_C%d_e_%f_R%d%s' % (pth_prefix, steps, prob['H'], kwargs.get('length'), 3, kwargs.get('eps'), repeats, postfix)
         numpy.savetxt(filename, resu)
       
 

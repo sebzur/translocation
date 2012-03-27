@@ -18,92 +18,93 @@ class IonCurrent(process.Sampler):
         self.eps = kwargs['eps']
 
     def sample(self, step, dt, old_cfg, new_cfg, connection):    
-        self.time += dt
-        cis = new_cfg.cis
-        trans = new_cfg.trans
-      
+        if float(step)/self.steps > 0.5:
+            self.time += dt
+            cis = new_cfg.cis
+            trans = new_cfg.trans
         
-        if cis.size:
-            size = cis.max()
-        else:
-            size=0
             
-        tab_cis = numpy.zeros(size+2)
-        
-        
-        if trans.size:
-            size = trans.max()
-        else:
-            size=0
-        
-        tab_trans = numpy.zeros(size+2)
-        tab_cis[0]=1
-        tab_trans[0]=1
-        
-        for i in cis:
-            tab_cis[i] += 1
+            if cis.size:
+                size = cis.max()
+            else:
+                size=0
+                
+            tab_cis = numpy.zeros(size+2)
             
-        for i in trans:
-            tab_trans[i] += 1
-        
-        current_cis = 0
-        current_trans = 0
-        
-        correct_cis = tab_cis[::-1]
-        
-        delta_cis = correct_cis[1:]- correct_cis[:-1]
-        delta_trans = tab_trans[1:]- tab_trans[:-1]
-        
-        eps = self.eps
-        #prad anionowy
-        const = -1*-1 #tutaj powinny dojsc stale
-        
-        current_cis_forward = numpy.exp(const*delta_cis).sum()
-        current_cis_revers = -1*numpy.exp(-1*const*delta_cis).sum()
-      
-        current_trans_forward =  numpy.exp(const*delta_trans).sum()
-        current_trans_revers =  -1*numpy.exp(-1*const*delta_trans).sum()
-        
-        current_bias_forward = numpy.exp(eps*0.5)*numpy.exp((tab_trans[0]- correct_cis[-1])*const)
-        current_bias_revers = -1*numpy.exp(-eps*0.5)*numpy.exp(-1*(tab_trans[0]- correct_cis[-1])*const)
-        
-        
-        
-        current_anion = (current_cis_forward + current_cis_revers +
-                       current_trans_forward + current_trans_revers+
-                       current_bias_forward + current_bias_revers)/(2*(delta_cis.size + delta_trans.size + 1))
-                       
-        
-        
-        #prad kationowy
-        const = 1*-1 #tutaj powinny dojsc stale
-        
-        current_cis_forward = -1*numpy.exp(const*delta_cis).sum()
-        current_cis_revers = numpy.exp(-1*const*delta_cis).sum()
-      
-        current_trans_forward = -1* numpy.exp(const*delta_trans).sum()
-        current_trans_revers =  numpy.exp(-1*const*delta_trans).sum()
-        
-        current_bias_forward = -1*numpy.exp(-eps*0.5)*numpy.exp((tab_trans[0]- correct_cis[-1])*const)
-        current_bias_revers = numpy.exp(eps*0.5)*numpy.exp(-1*(tab_trans[0]- correct_cis[-1])*const)
-        
-        
-        
-        current_kation = (current_cis_forward + current_cis_revers +
-                         current_trans_forward + current_trans_revers+
-                         current_bias_forward + current_bias_revers)/(2*(delta_cis.size + delta_trans.size + 1))
-                      
-        
-        
-        #print self.time, "  ",current_anion,"  ", current_kation, "   ",  ( current_anion + current_kation)/2.0
-        if connection.get_rate() in ('UF', 'UB'):
-            self.result.append(self.cumm_current/self.cumm_time)
-            self.cumm_current = 0
-            self.cumm_time = 0
             
-        self.cumm_current += (current_anion + current_kation)/2.0
-        self.cumm_time += dt
+            if trans.size:
+                size = trans.max()
+            else:
+                size=0
+            
+            tab_trans = numpy.zeros(size+2)
+            tab_cis[0]=1
+            tab_trans[0]=1
+            
+            for i in cis:
+                tab_cis[i] += 1
+                
+            for i in trans:
+                tab_trans[i] += 1
+            
+            current_cis = 0
+            current_trans = 0
+            
+            correct_cis = tab_cis[::-1]
+            
+            delta_cis = correct_cis[1:]- correct_cis[:-1]
+            delta_trans = tab_trans[1:]- tab_trans[:-1]
+            
+            eps = self.eps
+            #prad anionowy
+            const = -1*-1 #tutaj powinny dojsc stale
+            
+            current_cis_forward = numpy.exp(const*delta_cis).sum()
+            current_cis_revers = -1*numpy.exp(-1*const*delta_cis).sum()
         
+            current_trans_forward =  numpy.exp(const*delta_trans).sum()
+            current_trans_revers =  -1*numpy.exp(-1*const*delta_trans).sum()
+            
+            current_bias_forward = numpy.exp(eps*0.5)*numpy.exp((tab_trans[0]- correct_cis[-1])*const)
+            current_bias_revers = -1*numpy.exp(-eps*0.5)*numpy.exp(-1*(tab_trans[0]- correct_cis[-1])*const)
+            
+            
+            
+            current_anion = (current_cis_forward + current_cis_revers +
+                        current_trans_forward + current_trans_revers+
+                        current_bias_forward + current_bias_revers)/(2*(delta_cis.size + delta_trans.size + 1))
+                        
+            
+            
+            #prad kationowy
+            const = 1*-1 #tutaj powinny dojsc stale
+            
+            current_cis_forward = -1*numpy.exp(const*delta_cis).sum()
+            current_cis_revers = numpy.exp(-1*const*delta_cis).sum()
+        
+            current_trans_forward = -1* numpy.exp(const*delta_trans).sum()
+            current_trans_revers =  numpy.exp(-1*const*delta_trans).sum()
+            
+            current_bias_forward = -1*numpy.exp(-eps*0.5)*numpy.exp((tab_trans[0]- correct_cis[-1])*const)
+            current_bias_revers = numpy.exp(eps*0.5)*numpy.exp(-1*(tab_trans[0]- correct_cis[-1])*const)
+            
+            
+            
+            current_kation = (current_cis_forward + current_cis_revers +
+                            current_trans_forward + current_trans_revers+
+                            current_bias_forward + current_bias_revers)/(2*(delta_cis.size + delta_trans.size + 1))
+                        
+            
+            
+            #print self.time, "  ",current_anion,"  ", current_kation, "   ",  ( current_anion + current_kation)/2.0
+            if step == self.steps-1:
+                self.result.append(self.cumm_current/self.cumm_time)
+                self.cumm_current = 0
+                self.cumm_time = 0
+                
+            self.cumm_current += (current_anion + current_kation)/2.0
+            self.cumm_time += dt
+            
         
 
     @classmethod

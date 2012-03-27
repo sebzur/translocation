@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from kmc import process
 import numpy
+import itertools
 
 
 
@@ -12,15 +13,16 @@ class IonCurrent(process.Sampler):
         self.distance = 0.0
         self.time = 0.0
         self.cumm_time=0.0
-        self.cumm_current=0;
+        self.cumm_current=0
+        self.result = []
+        self.eps = kwargs['eps']
 
     def sample(self, step, dt, old_cfg, new_cfg, connection):    
         self.time += dt
-        if step < 60000:
-            return
         cis = new_cfg.cis
         trans = new_cfg.trans
       
+        
         if cis.size:
             size = cis.max()
         else:
@@ -51,36 +53,67 @@ class IonCurrent(process.Sampler):
         
         delta_cis = correct_cis[1:]- correct_cis[:-1]
         delta_trans = tab_trans[1:]- tab_trans[:-1]
-        current_cis = numpy.exp(delta_cis).sum()
-        current_trans =  numpy.exp(delta_trans).sum()
-        current_bias = numpy.exp(2*0.5)*numpy.exp(tab_trans[0]- correct_cis[-1])
         
-        current = (current_cis + current_trans + current_bias)/(current_cis.size + current_trans.size +2 )
+        eps = self.eps
+        #prad anionowy
+        const = -1*-1 #tutaj powinny dojsc stale
+        
+        current_cis_forward = numpy.exp(const*delta_cis).sum()
+        current_cis_revers = -1*numpy.exp(-1*const*delta_cis).sum()
+      
+        current_trans_forward =  numpy.exp(const*delta_trans).sum()
+        current_trans_revers =  -1*numpy.exp(-1*const*delta_trans).sum()
+        
+        current_bias_forward = numpy.exp(eps*0.5)*numpy.exp((tab_trans[0]- correct_cis[-1])*const)
+        current_bias_revers = -1*numpy.exp(-eps*0.5)*numpy.exp(-1*(tab_trans[0]- correct_cis[-1])*const)
+        
+        
+        
+        current_anion = (current_cis_forward + current_cis_revers +
+                       current_trans_forward + current_trans_revers+
+                       current_bias_forward + current_bias_revers)/(2*(delta_cis.size + delta_trans.size + 1))
+                       
+        
+        
+        #prad kationowy
+        const = 1*-1 #tutaj powinny dojsc stale
+        
+        current_cis_forward = -1*numpy.exp(const*delta_cis).sum()
+        current_cis_revers = numpy.exp(-1*const*delta_cis).sum()
+      
+        current_trans_forward = -1* numpy.exp(const*delta_trans).sum()
+        current_trans_revers =  numpy.exp(-1*const*delta_trans).sum()
+        
+        current_bias_forward = -1*numpy.exp(-eps*0.5)*numpy.exp((tab_trans[0]- correct_cis[-1])*const)
+        current_bias_revers = numpy.exp(eps*0.5)*numpy.exp(-1*(tab_trans[0]- correct_cis[-1])*const)
+        
+        
+        
+        current_kation = (current_cis_forward + current_cis_revers +
+                         current_trans_forward + current_trans_revers+
+                         current_bias_forward + current_bias_revers)/(2*(delta_cis.size + delta_trans.size + 1))
+                      
+        
+        
+        #print self.time, "  ",current_anion,"  ", current_kation, "   ",  ( current_anion + current_kation)/2.0
         if connection.get_rate() in ('UF', 'UB'):
-            print self.time, "  ", self.cumm_current/self.cumm_time
+            self.result.append(self.cumm_current/self.cumm_time)
             self.cumm_current = 0
             self.cumm_time = 0
             
-        self.cumm_current += current
+        self.cumm_current += (current_anion + current_kation)/2.0
         self.cumm_time += dt
         
         
 
     @classmethod
     def merge(cls, results, prob, steps, repeats, **kwargs):
-        return
-        resu = numpy.array([r.distance/r.time for r in results])
-        j_mean = resu.mean()
-        j_std = resu.std()
-        j_error = j_std/numpy.sqrt(repeats)
-        postfix = ''
+        resu = numpy.array(list( itertools.chain(*[ i.result for i in results])))
         pth_prefix = kwargs.get('path')
+        postfix = 'ion'
         filename = '%s/results/S%d_H%.2f_N%d_C%d_R%d%s' % (pth_prefix, steps, prob['H'], kwargs.get('length'), 3, repeats, postfix)
-        data_file = open(filename, 'a')
-        eps = numpy.log(prob['F']) * 2.0
-        data_file.write('%.10f\t%.10f\t%.10f\t%.10f\n' % (eps, j_mean, j_std, j_error))
-        data_file.close()
-
+        numpy.savetxt(filename, resu)
+      
 
 
 class Current(process.Sampler):

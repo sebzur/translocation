@@ -5,21 +5,22 @@ class Polymer(object):
         """ Initialize polymer object. 
         
         Arguments:
-        - reptons: reptons number, int number
-        - dim: space dimension, int number
+        - dynamics_class: represents polymer dynamics
+        - link_length: the maxmimum repton to repton distance
+        - reptons: how many reptons are there in the chain
         """
 
+        self.dynamics = dynamics_class(link_length)
         # Reptons are represented as points in 
         # space, each repton is a row in the 
         # `self.reptons` matrix
-        self.dynamics = dynamics_class(link_length)
         self.positions = numpy.zeros((reptons, self.dynamics.get_dim()))
+        # let's randomize the positions
         self._randomize_reptons()
 
 
     def _randomize_reptons(self):
         """ Randomizes repton positions """
-        
         for position in range(1, self.positions.shape[0]):
             trans = self.dynamics.select_translation(prev_trans=None)
             t_vect = self.dynamics.translations.get(trans)
@@ -88,6 +89,7 @@ class SquareTranslation(Translation):
         return 0.25
     
 if __name__ == "__main__":
+    # Jus a test..
     p = Polymer(SquareTranslation, 1.0, 40)
     for x, y in p.positions:
         print x, "\t", y

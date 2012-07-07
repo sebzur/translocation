@@ -29,30 +29,32 @@ class Polymer(object):
 
     def run(self, steps):
         repton_id = numpy.random.randint(0, self.positions.shape[0])
-        print 'ciagnie', repton_id
-
+        print 'ciagnie', repton_id, self.positions[repton_id]
+        
         trans = self.dynamics.select_translation(prev_trans=None)
         t_vect = self.dynamics.translations.get(trans)
       
-        old_pos = self.positions[repton_id]
-
+        start_pos = 1*self.positions[repton_id]
+      
         self.positions[repton_id] += t_vect
-
-
+        print "poszedl na", self.positions[repton_id]
+      
         for step in (-1, 1):
+            old_pos = 1*start_pos
             base_id = repton_id
             position_id = repton_id + step
-
-            while position_id >= 0 and position_id <= self.positions.shape[0]:
-                if ((self.positions[base_id] - self.positions[position_id]) ** 2).sum() <= 1:
-
+            
+            while position_id >= 0 and position_id < self.positions.shape[0]:
+                print "wybrany ", position_id, " z ", self.positions[position_id]
+                if ((self.positions[base_id] - self.positions[position_id]) ** 2).sum() > 1:
                     tt = old_pos - self.positions[position_id]
-                    old_pos = self.positions[position_id]
-
+                    old_pos = 1*self.positions[position_id]
                     self.positions[position_id] += tt
+                    print "wybrany poszedl na  ",self.positions[position_id] 
                     base_id = position_id
                     position_id += step
                 else:
+                    print "poszedl break"
                     break
                     
 
@@ -149,10 +151,13 @@ class SquareReptation(SquareTranslation):
 if __name__ == "__main__":
     # Jus a test..
     p = Polymer(SquareReptation, 1.0, 10)
+    i=0
     for x, y in p.positions:
-        print x, "\t", y
+        print i, "\t", x, "\t", y
+        i += 1
     p.run(1)
+    i=0
     for x, y in p.positions:
-        print x, "\t", y
-    
+        print i, "\t", x, "\t", y
+        i += 1
     

@@ -31,12 +31,15 @@ try:
 	wiersz=inp.readline()
 	w=wiersz.split()
 
-	krok=int(w[0])
-
+	krok=float(w[0])
+    
+        tail = (len(w)-1)/3
 	
 	for i in range(0,(len(w)-1)/3):
                 if i==0:
                     mols.append(sphere(pos=(atof(w[1+i*3]),atof(w[2+i*3]),atof(w[3+i*3])),radius=0.4,color=color.blue))
+                elif i==tail-1:
+                    mols.append(sphere(pos=(atof(w[1+i*3]),atof(w[2+i*3]),atof(w[3+i*3])),radius=0.35,color=color.yellow))
                 else:
                     mols.append(sphere(pos=(atof(w[1+i*3]),atof(w[2+i*3]),atof(w[3+i*3])),radius=0.3,color=color.red))
         #polacz               
@@ -60,7 +63,7 @@ while 1:
 			continue
 		w=wiersz.split()
 		
-		krok=int(w[0])
+		krok=float(w[0])
 	       
 		
 		for i in range(0,(len(w)-1)/3):

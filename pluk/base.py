@@ -40,10 +40,14 @@ class SquareLattice(Translation):
     
 class Rule(object):
     
-    def __init__(self, polimer, lattice , *arg, **kwargs):
+    def __init__(self, polimer, lattice , *args, **kwargs):
         self.polimer = polimer
         self.lattice = lattice
-    
+        self.initialize(*args, **kwargs)
+        
+
+    def initialize(*args, **kwargs):
+        pass
     
     def get_rate(self, repton_id, trans_id, *args, **kwargs):
         raise NotImplementedError
@@ -91,6 +95,24 @@ class NoHernia(Rule):
             return 0
             
         return self.rate
+        
+        
+class HorizontalElectricField(Rule):
+    
+    def initialize(self,*args, **kwargs):
+        self.B = numpy.exp(0.5*kwargs.get('epsilon'))
+        
+    def get_rate(self,repton_id, trans_id, *args, **kwargs):
+        t_vect = self.lattice.get_translation(trans_id)
+        
+        if numpy.all(t_vect == [1,0]):
+            return self.B
+        
+        if numpy.all(t_vect == [-1,0]):
+            return 1./self.B
+            
+        return 1
+
 
 #UWAGA - jak nei a herni i jest zachowana dlugos to to juz jest reptation bo nie ma jak opuscic konturu
 #class PureReptation(Rule):
@@ -136,6 +158,9 @@ class Dynamics(object):
     rules_classes = []
     
     def __init__(self, *args, **kwargs):
+        
+        self.kwargs = kwargs
+        self.args = args
         
         reptons = kwargs.get('reptons')
         link_length = kwargs.get('link_length')
@@ -189,7 +214,6 @@ class Dynamics(object):
         self.update(repton_id)
         
         
-        
     def update(self, repton_id):
         
         #wywal te co nie sa dozwolone z macierzy dozwolonych ruchow
@@ -204,9 +228,6 @@ class Dynamics(object):
             if repton_id < self.polimer.reptons - 1:
                 idx = self._get_coordinate(trans_id, repton_id+1)
                 self.motion_matrix[idx] = 0
-                
-        
-            
         #update
         if repton_id == 0:
             tab = [0,1]
@@ -218,9 +239,9 @@ class Dynamics(object):
         for trans_id in range(0,self.lattice.get_trans_count()):
             for repton in tab:
                 rate = self._get_rate(repton,trans_id)
-                if rate != 0 :
-                    idx = self._get_coordinate(trans_id, repton)
-                    self.motion_matrix[idx] = rate
+                idx = self._get_coordinate(trans_id, repton)
+                self.motion_matrix[idx] = rate
+        self.cumulative_prob = self.motion_matrix.cumsum()
     
         
     def find_translations(self):
@@ -250,16 +271,25 @@ class Dynamics(object):
     
 class TestDynamics(Dynamics):
     lattice = SquareLattice()
-    rules_classes = [NoTension, NoHernia]
+    rules_classes = [NoTension, NoHernia, HorizontalElectricField]
     
     
         
 if __name__ == "__main__":
     
-    symulator = TestDynamics(reptons=10,link_length=1,dim=2)
-    print symulator.polimer.positions
-    print symulator.motion_matrix.reshape( (4,10))
-    symulator.reconfigure()
-    print symulator.polimer.positions
-    print symulator.motion_matrix.reshape( (4,10))
+    symulator = TestDynamics(reptons=10,link_length=1,dim=2,epsilon=0.1)
+    
+    plik = open('trajectory.dat', 'w')
+    
+    for i in range(6000):
+        nap = "%d " % i
+        symulator.reconfigure()
+        print [ (x,y)  for x,y in symulator.polimer.positions]
+        
+        for x,y in symulator.polimer.positions:
+            nap = "%s %d %d 0" % (nap, x, y)
+        plik.write("%s\n"%nap)
+    plik.close()
+        
+    
     

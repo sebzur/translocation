@@ -35,7 +35,9 @@ class MySampler(Sampler):
     @classmethod
     def merge(cls, results, steps, repeats, **kwargs):
         
-        plik = open('/tmp/result.dat','w')
+        filename = "/tmp/result_%d.dat" % results[0].reptons
+        
+        plik = open(filename,'w')
         D = 0
         for idx, val in enumerate(results):
              vdrift = val.cms_x/val.time

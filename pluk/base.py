@@ -277,19 +277,14 @@ class TestDynamics(Dynamics):
         
 if __name__ == "__main__":
     
-    symulator = TestDynamics(reptons=10,link_length=1,dim=2,epsilon=0.1)
+    symulator = TestDynamics(reptons=20,link_length=1,dim=2,epsilon=0.1)
     
-    plik = open('trajectory.dat', 'w')
-    
-    for i in range(6000):
-        nap = "%d " % i
+    for i in range(101000):
+        time = symulator.get_lifetime()
+        t1 = symulator.polimer.get_cms_coord()[0]
         symulator.reconfigure()
-        print [ (x,y)  for x,y in symulator.polimer.positions]
+        t2 = symulator.polimer.get_cms_coord()[0]
         
-        for x,y in symulator.polimer.positions:
-            nap = "%s %d %d 0" % (nap, x, y)
-        plik.write("%s\n"%nap)
-    plik.close()
         
     
     

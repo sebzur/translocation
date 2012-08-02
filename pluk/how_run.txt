@@ -1,0 +1,1 @@
+PYTHONPATH=$PYTHONPATH:/home/kosmo/Git/KMC/ mpiexec -n 2 python example.py -s 2000 -r 4 -p 10 -l 1 -d 2

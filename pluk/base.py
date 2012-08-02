@@ -34,8 +34,10 @@ class Translation(object):
         
 class SquareLattice(Translation):
     
+    vectors = numpy.array( [[0,1], [1,0], [0,-1], [-1,0]] )
+    
     def get_translations(self):
-        return numpy.array( [[0,1], [1,0], [0,-1], [-1,0]] )
+        return self.vectors
 
     
 class Rule(object):
@@ -60,7 +62,7 @@ class NoTension(Rule):
     
     def get_rate(self,repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
-    
+        
         if ( repton_id ) > 0:
             #znajdz dlugosc z lewej strony - oldeglosc 0-1 - length[0], 1-2 - length[1] ...
             length = self.polimer.link_length[repton_id-1]
@@ -228,6 +230,7 @@ class Dynamics(object):
             if repton_id < self.polimer.reptons - 1:
                 idx = self._get_coordinate(trans_id, repton_id+1)
                 self.motion_matrix[idx] = 0
+        
         #update
         if repton_id == 0:
             tab = [0,1]
@@ -241,6 +244,7 @@ class Dynamics(object):
                 rate = self._get_rate(repton,trans_id)
                 idx = self._get_coordinate(trans_id, repton)
                 self.motion_matrix[idx] = rate
+        
         self.cumulative_prob = self.motion_matrix.cumsum()
     
         
@@ -277,7 +281,7 @@ class TestDynamics(Dynamics):
         
 if __name__ == "__main__":
     
-    symulator = TestDynamics(reptons=20,link_length=1,dim=2,epsilon=0.1)
+    symulator = TestDynamics(reptons=150,link_length=1,dim=2,epsilon=0.1)
     
     for i in range(101000):
         time = symulator.get_lifetime()

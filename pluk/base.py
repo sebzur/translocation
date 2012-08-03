@@ -5,7 +5,7 @@ class Polimer(object):
     def __init__(self, reptons, link_length, dim, *args, **kwargs):
         self.dim = dim
         self.reptons = reptons
-        link_number = reptons-1
+        link_number = reptons - 1
         
         self.positions = numpy.zeros((reptons,dim))
         self.link_length = numpy.zeros(link_number)
@@ -13,7 +13,11 @@ class Polimer(object):
        
     def get_cms_coord(self):
         return self.positions.sum(axis=0)/self.positions.shape[0]
-        
+
+    def validate(self):
+        """ Validates polymer configuration """
+        if numpy.any(numpy.abs((self.positions[1:] - self.positions[:-1]).sum(axis=1)) > 1):
+            raise ValueError("Invalid configuration")
     
     
 class Translation(object):
@@ -281,9 +285,10 @@ class TestDynamics(Dynamics):
         
 if __name__ == "__main__":
     
-    symulator = TestDynamics(reptons=150,link_length=1,dim=2,epsilon=0.1)
+    symulator = TestDynamics(reptons=150, link_length=1,dim=2,epsilon=0.1)
     
-    for i in range(101000):
+    for i in range(10000):
+        symulator.polimer.validate()
         time = symulator.get_lifetime()
         t1 = symulator.polimer.get_cms_coord()[0]
         symulator.reconfigure()

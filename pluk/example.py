@@ -8,7 +8,7 @@ from base import *
 parser = OptionParser()
 parser.add_option('-s', '--steps', type='int', help='MC steps to go')
 parser.add_option('-r', '--runs', type='int', help='MC runs')
-parser.add_option('-p', '--reptons', type='int', help="Reptons")
+parser.add_option('-n', '--reptons', type='int', help="Reptons")
 parser.add_option('-l', '--link_length', type='int', help="Link length")
 parser.add_option('-d', '--dim', type='int', help="Dim")
 parser.add_option('-e', '--epsilon', type='float', help="Epsilon")

@@ -12,7 +12,7 @@ class Diffusion(Sampler):
         self.epsilon = old_cfg.kwargs.get('epsilon')
         self.reptons = old_cfg.kwargs.get('reptons')
         
-        if step > old_cfg.polimer.reptons**1:
+        if step > old_cfg.polimer.reptons**3:
             self.time += dt
             self.cms_x += new_cfg.polimer.get_cms_coord()[0] - old_cfg.polimer.get_cms_coord()[0]
        
@@ -22,13 +22,14 @@ class Diffusion(Sampler):
         filename = "/tmp/diffusion.dat"
         
         plik = open(filename, 'a')
-        D = 0
+        D = []
         for idx, val in enumerate(results):
              vdrift = val.cms_x/val.time
-             D += vdrift / (val.reptons * val.epsilon)
+             D.append(vdrift / (val.reptons * val.epsilon))
              
-        D = D/len(results)    
-        plik.write("%d  %f  %f\n" % (val.reptons, D, val.epsilon))
+        D = numpy.array(D)
+        D_error = D.std()/numpy.sqrt(D.size)
+        plik.write("%d\t%.20f\t%.20f\t%.20f\n" % (val.reptons, D.mean(), D_error, val.epsilon))
         plik.close()
 
 

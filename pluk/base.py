@@ -22,6 +22,9 @@ class Polimer(object):
     
 class Translation(object):
     
+    def __init__(self):
+        self._get_trans_count = self.get_translations().shape[0]
+
     def get_translations(self):
         """ Returns all possible tranlations, note, that this will define
         the latice also.
@@ -30,7 +33,8 @@ class Translation(object):
         raise NotImplementedError
     
     def get_trans_count(self):
-        return self.get_translations().shape[0]
+        return self._get_trans_count
+        #return self.get_translations().shape[0]
         
     def get_translation(self, idx):
         return self.get_translations()[idx]
@@ -107,16 +111,16 @@ class HorizontalElectricField(Rule):
     
     def initialize(self,*args, **kwargs):
         self.B = numpy.exp(0.5*kwargs.get('epsilon'))
+        self._B = 1.0/self.B
         
     def get_rate(self,repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
         
-        if numpy.all(t_vect == [1,0]):
-            return self.B
-        
-        if numpy.all(t_vect == [-1,0]):
-            return 1./self.B
-            
+        if t_vect[1] == 0:
+            if t_vect[0] == 1:
+                return self.B
+            if t_vect[0] == -1:
+                return self._B
         return 1
 
 
@@ -223,7 +227,7 @@ class Dynamics(object):
     def update(self, repton_id):
         
         #wywal te co nie sa dozwolone z macierzy dozwolonych ruchow
-        for trans_id in range(0, self.lattice.get_trans_count()):
+        for trans_id in xrange(0, self.lattice.get_trans_count()):
             idx = self._get_coordinate(trans_id, repton_id)
             self.motion_matrix[idx] = 0
         
@@ -243,7 +247,7 @@ class Dynamics(object):
         else:   
             tab=[repton_id-1, repton_id, repton_id+1]
         
-        for trans_id in range(0,self.lattice.get_trans_count()):
+        for trans_id in xrange(0,self.lattice.get_trans_count()):
             for repton in tab:
                 rate = self._get_rate(repton,trans_id)
                 idx = self._get_coordinate(trans_id, repton)
@@ -253,8 +257,8 @@ class Dynamics(object):
     
         
     def find_translations(self):
-        for trans_id in range(0, self.lattice.get_trans_count()):
-            for repton_id in range(0, self.polimer.reptons):
+        for trans_id in xrange(0, self.lattice.get_trans_count()):
+            for repton_id in xrange(0, self.polimer.reptons):
                 rate  =  self._get_rate(repton_id, trans_id)
                 if rate  != 0:
                     idx = self._get_coordinate(trans_id, repton_id)
@@ -285,15 +289,45 @@ class TestDynamics(Dynamics):
         
 if __name__ == "__main__":
     
-    symulator = TestDynamics(reptons=150, link_length=1,dim=2,epsilon=0.1)
+    reptons = 10
+    epsilon = 1
+    steps = 10000
+    runs = 10
+
+    D = []
+    Y = []
     
-    for i in range(10000):
-        symulator.polimer.validate()
-        time = symulator.get_lifetime()
-        t1 = symulator.polimer.get_cms_coord()[0]
-        symulator.reconfigure()
-        t2 = symulator.polimer.get_cms_coord()[0]
-        
-        
-    
+
+    for run in range(runs):
+
+        symulator = TestDynamics(reptons=reptons, link_length=1, dim=2, epsilon=epsilon)
+                     
+
+        time = 0
+        cms_vect = numpy.array([0,0])
+        for step in range(steps):
+                         
+            dt = symulator.get_lifetime()
+
+#            print '*' * 10
+            t1 = symulator.polimer.get_cms_coord()
+#            print symulator.polimer.positions, t1
+            symulator.reconfigure()
+            t2 = symulator.polimer.get_cms_coord()
+#            print symulator.polimer.positions, t2
+#            print t2, t1, t2 - t1
+            if step > reptons**3:
+                time = time + dt
+                cms_vect = cms_vect + (t2 - t1)
+#                print cms_vect
+
+        vdrift = cms_vect[0]/time
+        D.append(vdrift / (reptons * epsilon))
+        Y.append(cms_vect[1])
+
+    print D
+    print Y
+    print numpy.array(D).mean(), numpy.array(D).std()
+                     
+
     

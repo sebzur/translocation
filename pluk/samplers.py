@@ -19,7 +19,8 @@ class Diffusion(Sampler):
     @classmethod
     def merge(cls, results, steps, repeats, **kwargs):
         
-        filename = "/tmp/diffusion.dat"
+        #filename = "/tmp/diffusion.dat"
+        filename = "/home/sebzur/diffusion.dat"
         
         plik = open(filename, 'a')
         D = 0

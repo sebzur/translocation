@@ -1,0 +1,242 @@
+ gmp/5.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ mpc/0.9 load complete.
+ gcc/4.6.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ gmp/5.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ mpc/0.9 load complete.
+ gcc/4.6.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ gmp/5.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ mpc/0.9 load complete.
+ gcc/4.6.1 load complete.
+ gmp/5.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mpfr/3.0.1 load complete.
+ gmp/5.0.1 load complete.
+ mpc/0.9 load complete.
+ mpfr/3.0.1 load complete.
+ mpc/0.9 load complete.
+ gcc/4.6.1 load complete.
+ gcc/4.6.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ gmp/5.0.1 load complete.
+ gmp/5.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mpfr/3.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ mpc/0.9 load complete.
+ mpc/0.9 load complete.
+ gcc/4.6.1 load complete.
+ gcc/4.6.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mvapich2/1.6_gcc load complete.
+ gmp/5.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ gmp/5.0.1 load complete.
+ mpc/0.9 load complete.
+ mpfr/3.0.1 load complete.
+ gcc/4.6.1 load complete.
+ mpc/0.9 load complete.
+ gmp/5.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ gmp/5.0.1 load complete.
+ gcc/4.6.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mpc/0.9 load complete.
+ gmp/5.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ gmp/5.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mpfr/3.0.1 load complete.
+ mpc/0.9 load complete.
+ gcc/4.6.1 load complete.
+ mpfr/3.0.1 load complete.
+ mpc/0.9 load complete.
+ gcc/4.6.1 load complete.
+ gmp/5.0.1 load complete.
+ mpc/0.9 load complete.
+ mvapich2/1.6_gcc load complete.
+ gmp/5.0.1 load complete.
+ gcc/4.6.1 load complete.
+ gmp/5.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ gmp/5.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mpfr/3.0.1 load complete.
+ gcc/4.6.1 load complete.
+ mpfr/3.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mpc/0.9 load complete.
+ mpfr/3.0.1 load complete.
+ mpc/0.9 load complete.
+ mpc/0.9 load complete.
+ mpc/0.9 load complete.
+ mvapich2/1.6_gcc load complete.
+ gmp/5.0.1 load complete.
+ gcc/4.6.1 load complete.
+ gcc/4.6.1 load complete.
+ gcc/4.6.1 load complete.
+ mpfr/3.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mvapich2/1.6_gcc load complete.
+ gcc/4.6.1 load complete.
+ mpc/0.9 load complete.
+ mvapich2/1.6_gcc load complete.
+ gcc/4.6.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mvapich2/1.6_gcc load complete.
+Fatal error in MPI_Init_thread:
+Other MPI error, error stack:
+MPIR_Init_thread(413): Initialization failed
+(unknown)(): Other MPI error
+
+[proxy:0:1@wn580] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:1@wn580] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): [proxy:0:2@wn698] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:2@wn698] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:2@wn698] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:4@wn704] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:4@wn704] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:4@wn704] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:8@wn570] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:8@wn570] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:8@wn570] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:7@wn546] [proxy:0:3@wn536] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:3@wn536] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:3@wn536] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:5@wn709] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:5@wn709] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:5@wn709] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+callback returned error status
+[proxy:0:1@wn580] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:9@wn632] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:9@wn632] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:13@wn359] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:13@wn359] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:13@wn359] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:10@wn648] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:10@wn648] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:10@wn648] [proxy:0:14@wn358] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:14@wn358] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): [proxy:0:28@wn574] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:28@wn574] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:28@wn574] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:6@wn479] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:6@wn479] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:6@wn479] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+callback returned error status
+[proxy:0:14@wn358] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:7@wn546] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): [proxy:0:23@wn518] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:23@wn518] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:23@wn518] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+callback returned error status
+[proxy:0:7@wn546] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:9@wn632] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+ gmp/5.0.1 load complete.
+ gmp/5.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ gmp/5.0.1 load complete.
+ gmp/5.0.1 load complete.
+ gmp/5.0.1 load complete.
+ mpc/0.9 load complete.
+ gmp/5.0.1 load complete.
+ mpc/0.9 load complete.
+ gmp/5.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ mpfr/3.0.1 load complete.
+ gcc/4.6.1 load complete.
+ mpc/0.9 load complete.
+ gcc/4.6.1 load complete.
+ mpc/0.9 load complete.
+ mpc/0.9 load complete.
+ mpc/0.9 load complete.
+ mpc/0.9 load complete.
+ gmp/5.0.1 load complete.
+ gcc/4.6.1 load complete.
+ gcc/4.6.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ gcc/4.6.1 load complete.
+ mpfr/3.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ gcc/4.6.1 load complete.
+ gcc/4.6.1 load complete.
+ mpc/0.9 load complete.
+ gmp/5.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mvapich2/1.6_gcc load complete.
+ mvapich2/1.6_gcc load complete.
+ mpfr/3.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ gcc/4.6.1 load complete.
+ gmp/5.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mpc/0.9 load complete.
+ mpfr/3.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ gmp/5.0.1 load complete.
+ mpc/0.9 load complete.
+ gcc/4.6.1 load complete.
+ mpfr/3.0.1 load complete.
+ gmp/5.0.1 load complete.
+ gcc/4.6.1 load complete.
+ mpc/0.9 load complete.
+ mpfr/3.0.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mpc/0.9 load complete.
+ gcc/4.6.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ gcc/4.6.1 load complete.
+ mvapich2/1.6_gcc load complete.
+ mvapich2/1.6_gcc load complete.
+Fatal error in MPI_Init_thread:
+Other MPI error, error stack:
+MPIR_Init_thread(413): Initialization failed
+(unknown)(): Other MPI error
+
+[proxy:0:12@wn611] [proxy:0:11@wn624] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:11@wn624] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:11@wn624] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:12@wn611] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:12@wn611] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:16@wn463] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:16@wn463] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:16@wn463] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:17@wn651] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:17@wn651] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:17@wn651] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:18@wn505] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:18@wn505] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:18@wn505] main (./pm/pmiserv/pmip.c:214): [proxy:0:19@wn465] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:19@wn465] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:19@wn465] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:21@wn387] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:21@wn387] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:21@wn387] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:22@wn380] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:22@wn380] [proxy:0:24@wn376] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:24@wn376] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:24@wn376] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:25@wn386] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:25@wn386] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:25@wn386] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:26@wn555] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:26@wn555] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:26@wn555] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:27@wn530] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:27@wn530] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:27@wn530] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[proxy:0:29@wn582] HYD_pmcd_pmip_control_cmd_cb (./pm/pmiserv/pmip_cb.c:906): assert (!closed) failed
+[proxy:0:29@wn582] HYDT_dmxu_poll_wait_for_event (./tools/demux/demux_poll.c:77): callback returned error status
+[proxy:0:29@wn582] main (./pm/pmiserv/pmip.c:214): demux engine error waiting for event
+[mpiexec@wn614] HYDT_bscu_wait_for_completion (./tools/bootstrap/utils/bscu_wait.c:70): one of the processes terminated badly; aborting
+[mpiexec@wn614] HYDT_bsci_wait_for_completion (./tools/bootstrap/src/bsci_wait.c:23): launcher returned error waiting for completion
+[mpiexec@wn614] HYD_pmci_wait_for_completion (./pm/pmiserv/pmiserv_pmci.c:199): launcher returned error waiting for completion
+[mpiexec@wn614] main (./ui/mpich/mpiexec.c:385): process manager error waiting for completion

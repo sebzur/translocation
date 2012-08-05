@@ -170,11 +170,10 @@ class HorizontalElectricField(Rule):
     def get_rate(self, repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
         
-        if t_vect[1] == 0:
-            if t_vect[0] == 1:
-                return self.rate
-            else:
-                return 1./self.rate
+        if t_vect[0] == 1:
+            return self.rate
+        else:
+            return 1./self.rate
             
         return 1
 
@@ -236,7 +235,7 @@ class Dynamics(object):
             if rand_nr <= prob:
                 trans_id, repton_id = divmod(idx, self.polimer.reptons)
                 t_vect = self.lattice.get_translation(trans_id) 
-                print "poszedl ", repton_id , " w ", t_vect
+                
                 break
                 
         self.polimer.positions[repton_id] += t_vect
@@ -309,15 +308,21 @@ class TestDynamics(Dynamics):
         
 if __name__ == "__main__":
     
-    epsilon = 0.001
+    epsilon = 0.1
     
     symulator = TestDynamics(reptons=10, link_length=1, dim=2, epsilon=epsilon, hernia=0.5, crossing=0.3)
-    print symulator.polimer.positions
-    print symulator.motion_matrix.reshape(8,10)
-    symulator.reconfigure()
-    print symulator.polimer.positions
-    print symulator.motion_matrix.reshape(8,10)
+    plik = open("traj.pos",'w')
     
+    for i in range(10000):
+        symulator.reconfigure()
+        nap = "%d" % i
+        
+        for x,y in symulator.polimer.positions:
+            nap = "%s %d %d 0 " % (nap, x,y)
+        nap = "%s\n" % nap
+        
+        plik.write(nap)
+    plik.close()
         
     
     

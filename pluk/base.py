@@ -6,7 +6,7 @@ class Polimer(object):
     def __init__(self, reptons, link_length, dim, *args, **kwargs):
         self.dim = dim
         self.reptons = reptons
-        link_number = reptons-1
+        link_number = reptons - 1
         
         self.positions = numpy.zeros((reptons, dim))
         self.link_length = numpy.zeros(link_number)
@@ -14,11 +14,19 @@ class Polimer(object):
        
     def get_cms_coord(self):
         return self.positions.sum(axis=0)/self.positions.shape[0]
-        
+
+    def validate(self):
+        """ Validates polymer configuration """
+        if numpy.any(numpy.abs((self.positions[1:] - self.positions[:-1]).sum(axis=1)) > 1):
+            raise ValueError("Invalid configuration")
     
     
 class Translation(object):
     """Lattice base class"""
+    
+    def __init__(self):
+        self._get_trans_count = self.get_translations().shape[0]
+
     def get_translations(self):
         """ Returns all possible tranlations, note, that this will define
         the latice also.
@@ -32,7 +40,8 @@ class Translation(object):
         return self.get_translations()
     
     def get_trans_count(self):
-        return self.get_translations().shape[0]
+        return self._get_trans_count
+        #return self.get_translations().shape[0]
         
     def get_translation(self, idx):
         return self.get_translations()[idx]
@@ -138,7 +147,21 @@ class Hernia(Rule):
         
         if numpy.all(self.polimer.positions[repton_id - 1] == self.polimer.positions[repton_id+1]) and numpy.all( (self.polimer.positions[repton_id]+t_vect) == self.polimer.positions[repton_id+1]):
             return self.rate
+        return 1
             
+class HorizontalElectricField(Rule):
+    
+    def initialize(self,*args, **kwargs):
+        self.B = numpy.exp(0.5*kwargs.get('epsilon'))
+        self._B = 1.0/self.B
+        
+    def get_rate(self,repton_id, trans_id, *args, **kwargs):
+        t_vect = self.lattice.get_translation(trans_id)
+        
+        if t_vect[0] == 1:
+            return self.B
+        if t_vect[0] == -1:
+            return self._B
         return 1
 
 class CrossingBarrier(Rule):
@@ -324,5 +347,3 @@ if __name__ == "__main__":
         plik.write(nap)
     plik.close()
         
-    
-    

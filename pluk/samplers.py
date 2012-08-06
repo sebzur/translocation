@@ -1,4 +1,5 @@
 import numpy
+import os
 from kmc.sampler import Sampler
 
 
@@ -19,7 +20,7 @@ class Diffusion(Sampler):
     @classmethod
     def merge(cls, results, steps, repeats, **kwargs):
         
-        filename = "/tmp/diffusion.dat"
+        filename = os.path.join(os.path.expanduser(), 'TRANSLOCATION', 'diffusion.dat')
         
         plik = open(filename, 'a')
         D = []

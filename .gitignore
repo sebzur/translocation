@@ -1,3 +1,5 @@
 *~
 *.pyc
+pluk/scripts/wcss/*.o*
+pluk/scripts/wcss/*.e*
 

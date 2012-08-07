@@ -20,7 +20,7 @@ class Diffusion(Sampler):
     @classmethod
     def merge(cls, results, steps, repeats, **kwargs):
         
-        filename = os.path.join(os.path.expanduser(), 'TRANSLOCATION', 'diffusion.dat')
+        filename = os.path.join(os.path.expanduser('~'), 'TRANSLOCATION', 'diffusion.dat')
         
         plik = open(filename, 'a')
         D = []

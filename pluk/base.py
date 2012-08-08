@@ -2,8 +2,8 @@ import numpy
 
 
 class Particles(object):
-    """Polimer """
-    def __init__(self, nparticles , dim, *args, **kwargs):
+    def __init__(self, nparticles, dim, *args, **kwargs):
+        print 'Got dim:', dim, nparticles
         self.dim = dim
         self.number = nparticles
         self.positions = numpy.zeros((nparticles, dim))

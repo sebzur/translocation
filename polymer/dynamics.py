@@ -1,14 +1,10 @@
 import numpy
-
-import sys
-sys.path.append('/home/kosmo/Git/translocation')
-
 from pluk import base
 
-class Polimer(base.Particles):
+class Polymer(base.Particles):
     
     def __init__(self, reptons, dim, *args, **kwargs):
-        super(Polimer, self).__init__(reptons, dim, *args, **kwargs)
+        super(Polymer, self).__init__(reptons, dim, *args, **kwargs)
         link_number = reptons - 1
         self.link_length = numpy.zeros(link_number)
         link_length = kwargs.get('link_length', 1)
@@ -127,11 +123,11 @@ class HorizontalElectricField(base.Rule):
         
         
 
-class MyDynamics(base.Dynamics):
+class PolymerDynamics(base.Dynamics):
         
     lattice = SquareLattice()
     rules_classes = [NoTension, Hernia, CrossingBarrier, HorizontalElectricField]
-    particles_class = Polimer
+    particles_class = Polymer
         
         
     def initialize_particles(self, *args, **kwargs):
@@ -152,8 +148,8 @@ class MyDynamics(base.Dynamics):
 if __name__ == "__main__":
     
     
-    symulator = MyDynamics(particles=10, link_length=1, hernia=0.5, crossing=0.2, epsilon=1)
-    for i in xrange(100000):
+    symulator = PolymerDynamics(particles=10, link_length=1, hernia=0.5, crossing=0.2, epsilon=1)
+    for i in xrange(1000):
         symulator.reconfigure()
     
     

@@ -8,6 +8,17 @@ class Particles(object):
         self.number = nparticles
         self.positions = numpy.zeros((nparticles, dim))
    
+    def get_neighbours_idx(self, repton_id):
+        
+        if repton_id == 0:
+            tab = [0, 1]
+        elif repton_id == self.number - 1:
+            tab = [repton_id-1, repton_id]
+        else:   
+            tab = [repton_id-1, repton_id, repton_id+1]
+            
+        return tab
+
     def get_cms_coord(self):
         return self.positions.sum(axis=0)/self.positions.shape[0]
 
@@ -120,19 +131,29 @@ class Dynamics(object):
         
     def update(self, particle_id, trans_id):
         
-        update_list = [ 0  for i in xrange(particles) ]
+        update_list = [ 0 for i in xrange(self.particles.number)]
         for rule in self.rules:
-           ul = rule.get_update_list(particle_id, trans_id)
-           for  k in ul:
-                for trans_idx in xrange(0, self.lattice.get_trans_count()):
-                    idx = self._get_coordinate(trans_idx, particle_id)
-                    self.motion_matrix[idx] = 1
-                    
-           for k in ul:
-                for trans_idx in xrange(0, self.lattice.get_trans_count()):
-                    idx = self._get_coordinate(trans_idx, particle_id)
-                    self.motion_matrix[idx] = self.motion_matrix[idx] * rule.get_rate(particle_id, trans_idx)
+           for particle_idx in rule.get_update_list(particle_id, trans_id):
+                update_list[particle_idx] = 1
         
+        #updarte motion_matrix
+        for trans_idx in xrange(0, self.lattice.get_trans_count()):
+            for particle_idx, val in enumerate(update_list):
+                if val == 1:
+                    idx = self._get_coordinate(trans_idx, particle_idx )
+                    self.motion_matrix[idx] = 1
+                       
+        for particle_idx, val in enumerate(update_list):
+            if val ==1:
+                for trans_idx in xrange(0, self.lattice.get_trans_count()):
+                    rate = 1
+                    for rule in self.rules:
+                        rate = rate * rule.get_rate(particle_idx, trans_idx)
+                        if rate == 0:
+                            break
+                    idx = self._get_coordinate(trans_idx, particle_idx)
+                    self.motion_matrix[idx] = self.motion_matrix[idx] * rate
+                        
         self.cumulative_prob = self.motion_matrix.cumsum()
     
     

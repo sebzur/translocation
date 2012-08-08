@@ -13,7 +13,8 @@ class Polimer(base.Particles):
         self.link_length = numpy.zeros(link_number)
         link_length = kwargs.get('link_length', 1)
         self.link_length.fill(link_length)
-
+    
+    
 class SquareLattice(base.Translation):
     """Square lattice"""
     vectors = numpy.array( [[0, 1], [1, 0], [0, -1], [-1, 0] ] )
@@ -31,9 +32,13 @@ class SecondNearestLattice(base.Translation):
     def get_initial_translations(self):
         return self.vectors[:4]
         
+
         
+
 class NoTension(base.Rule):
     """Constructor gets always particles objects, lattice, args and kwargs"""
+    def get_update_list(self, repton_id, trans_id):
+        return self.particles.get_neighbours_idx(repton_id)
     
     def get_rate(self, repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
@@ -56,6 +61,9 @@ class Hernia(base.Rule):
     """ Hernias are allowed"""
     def initialize(self, *args, **kwargs):
         self.rate = kwargs.get('hernia')
+    
+    def get_update_list(self, repton_id, trans_id):
+        return self.particles.get_neighbours_idx(repton_id)
         
     def get_rate(self, repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
@@ -79,6 +87,9 @@ class CrossingBarrier(base.Rule):
     def initialize(self, *args, **kwargs):
         self.rate = kwargs.get('crossing')
         
+    def get_update_list(self, repton_id, trans_id):
+        return self.particles.get_neighbours_idx(repton_id)
+        
     def get_rate(self, repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
         
@@ -88,7 +99,7 @@ class CrossingBarrier(base.Rule):
         
         # jesli reptony sasiedne w jednej komorce  to nie (hernie nie ma CB  musz byc dwie hernie)
         if repton_id != 0 and repton_id != self.particles.number-1:
-            if numpy.all(self.particle.positions[repton_id -1] == self.particle.positions[repton_id+1]):
+            if numpy.all(self.particles.positions[repton_id -1] == self.particles.positions[repton_id+1]):
                 return 0
         
         #odleglos sprawdzil wczesniej - wiec ok
@@ -100,12 +111,15 @@ class HorizontalElectricField(base.Rule):
     def initialize(self, *args, **kwargs):
         self.rate = numpy.exp(0.5*kwargs.get('epsilon'))
         
+    def get_update_list(self, repton_id, trans_id):
+        return []
+        
     def get_rate(self, repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
         
         if t_vect[0] == 1:
             return self.rate
-        else:
+        elif t_vect[0] == -1:
             return 1./self.rate
         return 1
 
@@ -115,8 +129,8 @@ class HorizontalElectricField(base.Rule):
 
 class MyDynamics(base.Dynamics):
         
-    lattice = SquareLattice()
-    rules_classes = [NoTension, Hernia]
+    lattice = SecondNearestLattice()
+    rules_classes = [NoTension, Hernia, CrossingBarrier, HorizontalElectricField]
     particles_class = Polimer
         
         
@@ -138,7 +152,11 @@ class MyDynamics(base.Dynamics):
 if __name__ == "__main__":
     
     
-    symulator = MyDynamics(particles=6, link_length=1, hernia=0)
+    symulator = MyDynamics(particles=5, link_length=1, hernia=0.5, crossing=0.2, epsilon=1)
     print symulator.particles.positions
-    print symulator.motion_matrix.reshape(4,6)
+    print symulator.motion_matrix.reshape(8,5)
+    symulator.reconfigure()
+    print symulator.particles.positions
+    print symulator.motion_matrix.reshape(8,5)
+    
     

@@ -123,7 +123,6 @@ class Dynamics(object):
             if rand_nr <= prob:
                 trans_id, particle_id = divmod(idx, self.particles.number)
                 t_vect = self.lattice.get_translation(trans_id) 
-                print "Ruszyl", particle_id, " w ", t_vect
                 break
                 
         self.particles.positions[particle_id] += t_vect

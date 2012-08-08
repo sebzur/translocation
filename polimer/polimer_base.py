@@ -129,7 +129,7 @@ class HorizontalElectricField(base.Rule):
 
 class MyDynamics(base.Dynamics):
         
-    lattice = SecondNearestLattice()
+    lattice = SquareLattice()
     rules_classes = [NoTension, Hernia, CrossingBarrier, HorizontalElectricField]
     particles_class = Polimer
         
@@ -152,11 +152,8 @@ class MyDynamics(base.Dynamics):
 if __name__ == "__main__":
     
     
-    symulator = MyDynamics(particles=5, link_length=1, hernia=0.5, crossing=0.2, epsilon=1)
-    print symulator.particles.positions
-    print symulator.motion_matrix.reshape(8,5)
-    symulator.reconfigure()
-    print symulator.particles.positions
-    print symulator.motion_matrix.reshape(8,5)
+    symulator = MyDynamics(particles=10, link_length=1, hernia=0.5, crossing=0.2, epsilon=1)
+    for i in xrange(100000):
+        symulator.reconfigure()
     
     

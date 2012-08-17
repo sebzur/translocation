@@ -1,4 +1,6 @@
 import numpy
+import sys
+sys.path.append('/home/kosmo/Git/translocation')
 from pluk import base
 
 class Polymer(base.Particles):
@@ -119,14 +121,221 @@ class HorizontalElectricField(base.Rule):
             return 1./self.rate
         return 1
 
+
+#TODO zrobic liste update
+class Bending(base.Rule):
+    def initialize(self, *args, **kwargs):
+        self.rate = numpy.exp(0.5*kwargs.get('kappa'))
+        
+    def get_update_list(self, repton_id, trans_id):
+        #tutaj to bedzie dynamiczne - dwa sasiednie zawsze  potem wszystskie ad do kolejengo z innej komorki
+        tab = [repton_id]
+        
+        if repton_id == 0:
+            next_r = self.next_id(repton_id + 1)
+            if not next_r is None:
+                tab = tab + range(repton_id + 1, next_r+1)
+            else:
+                tab = tab + range(repton_id + 1, self.particles.number)
+            return tab
+        
+        if repton_id == self.particles.number - 1:
+            tab.append(repton_id)
+            prev_r = self.prev_id(repton_id - 1)
+            if not prev_r is None:
+                tab = tab + range(prev_r, repton_id)
+            else:
+                tab = tab + range(0, repton_id)
+            return tab
         
         
+        
+        prev_r = self.prev_id(repton_id - 1)
+        if not prev_r is None:
+            tab = range(prev_r, repton_id, 1) + tab
+        else:
+            tab = range(0, repton_id, 1) + tab
+
+        
+        next_r = self.next_id(repton_id + 1)
+        if not next_r is None:
+            tab = tab + range(repton_id + 1, next_r+1)
+        else:
+            tab = tab + range(repton_id + 1, self.particles.number)
+        return tab
+            
+        return []
+        
+    def _get_inter_energy(self,vectors ):
+        energy = 0
+        for i in range(0,3):
+            #slack-link daje 0
+            if (vectors[i][0]==0 and vectors[i][1]==0 ) or (vectors[i+1][0]==0 and vectors[i+1][1]==0 ):
+                energy = energy
+            else:
+                skalar = -1 * vectors[i][0]*vectors[i+1][0] + -1.*vectors[i][1]*vectors[i+1][1]
+                energy = energy + 1 + skalar # 1 + cos
+                
+        #Jak sa TYLKO !!! dwa srodkowe slackiem to wtedy kat jest katem pomiedzy dwoma zewnetrznymi
+        if (vectors[1][0]==0 and vectors[1][1]==0 ) and (vectors[2][0]==0 and vectors[2][1]==0 ):
+            if (vectors[0][0]!=0 or vectors[0][1]!=0 ) and (vectors[3][0]!=0 or vectors[3][1]!=0 ):
+                skalar = -1 * vectors[0][0]*vectors[3][0] + -1*vectors[0][1]*vectors[3][1]
+                energy = energy + 1 + skalar
+        
+        return energy
+        
+    def _get_end_energy(self, vectors):
+        energy = 0
+        if numpy.all(vectors[0]==0) or numpy.all(vectors[1]==0):
+            return energy
+        
+        skalar = -1 * vectors[0][0]*vectors[1][0] + -1*vectors[0][1]*vectors[1][1]
+        return 1 + skalar
+            
+            
+    def get_rate(self, repton_id, trans_id, *args, **kwargs):
+        t_vect = self.lattice.get_translation(trans_id)
+        #glowa
+        if repton_id == 0:
+            tab_old = numpy.zeros((3,2))
+            tab_old[0] = self.particles.positions[repton_id]
+            tab_old[1] = self.particles.positions[repton_id+1]
+            next_r = self.next_id(repton_id+1)
+            if not next_r is None:
+                tab_old[2] = 1.*self.particles.positions[next_r]
+            else:
+                tab_old[2] = 1.*self.particles.positions[repton_id+1]
+            
+            vectors = numpy.diff(tab_old, axis=0)
+            energy_old = self._get_end_energy(vectors)
+            tab_old[0] = self.particles.positions[repton_id] + t_vect
+            vectors = numpy.diff(tab_old, axis=0)
+            energy_new = self._get_end_energy(vectors)
+        
+            return numpy.exp(-0.5*self.rate*(energy_new - energy_old))
+            
+        #ogon
+        if repton_id == self.particles.number-1:
+            tab_old = numpy.zeros((3,2))
+            tab_old[0] = self.particles.positions[repton_id]
+            tab_old[1] = self.particles.positions[repton_id-1]
+            prev_r = self.prev_id(repton_id-1)
+            if not prev_r is None:
+                tab_old[2] = 1.*self.particles.positions[prev_r]
+            else:
+                tab_old[2] = 1.*self.particles.positions[repton_id-1]
+            
+            vectors = numpy.diff(tab_old, axis=0)
+            energy_old = self._get_end_energy(vectors)
+            tab_old[0] = self.particles.positions[repton_id] + t_vect
+            vectors = numpy.diff(tab_old, axis=0)
+            energy_new = self._get_end_energy(vectors)
+          
+            return numpy.exp(-0.5*self.rate*(energy_new - energy_old))
+        
+          
+        #jesli nie hernia to nas nie interesuje
+        if numpy.any( self.particles.positions[repton_id-1] != self.particles.positions[repton_id+1]):
+            return 1
+            
+        tab_old = numpy.zeros((5,2))
+        
+        tab_old[2] = 1.*self.particles.positions[repton_id]
+        tab_old[1] = 1.*self.particles.positions[repton_id-1]
+        tab_old[3] = 1.*self.particles.positions[repton_id+1]
+        
+        next_r = self.next_id(repton_id+1)
+        prev_r = self.prev_id(repton_id-1)
+    
+        if not next_r is None:
+            tab_old[4] = 1.*self.particles.positions[next_r]
+        else:
+            tab_old[4] = 1.*self.particles.positions[repton_id+1]
+        
+        if not prev_r is None:
+            tab_old[0] = 1.*self.particles.positions[prev_r]
+        else:
+            tab_old[0] = 1.*self.particles.positions[repton_id-1]
+        
+        vectors = numpy.diff(tab_old, axis=0)
+        energy_old = self._get_inter_energy(vectors)
+        tab_old[2] = tab_old[2] + t_vect
+        vectors_new = numpy.diff(tab_old, axis=0)
+        energy_new = self._get_inter_energy(vectors_new)
+        
+        return numpy.exp(-0.5*self.rate*(energy_new - energy_old))
+        
+    
+    def next_id(self, repton_id):
+        if repton_id == self.particles.number -1:
+            return None
+        else:
+            for i in xrange(repton_id+1, self.particles.number):
+                if numpy.any( self.particles.positions[repton_id] !=  self.particles.positions[i] ):
+                    return i
+        return None
+    
+    
+    def prev_id(self, repton_id):
+        if repton_id == 0:
+            return None
+        else:
+            for i in xrange(repton_id-1, -1,-1):
+                if numpy.any( self.particles.positions[repton_id] != self.particles.positions[i]):
+                    return i
+        return None
+        
+class SlackElectrostatic(base.Rule):
+    
+    def initialize(self, *args, **kwargs):
+        self.rate = kwargs.get('el')
+        
+    def get_update_list(self, repton_id, trans_id):
+        return self.particles.get_neighbours_idx(repton_id)
+     
+    def _slack_number(self, repton_id, position):
+        number = 0
+        idx = repton_id + 1
+        while idx < self.particles.number:
+           
+            if numpy.any( position != self.particles.positions[idx]):
+                break
+            number = number + 1
+            idx = idx +1 
+        
+        idx = repton_id - 1
+        while idx >= 0:
+            if numpy.any( position != self.particles.positions[idx]):
+                break
+            number = number + 1
+            idx = idx -1
+            
+        return number
+        
+        
+    def get_rate(self, repton_id, trans_id, *args, **kwargs):
+        t_vect = self.lattice.get_translation(trans_id)
+     
+        #jesli nie konce i nie hernie to sie nie zmiania
+        
+        if repton_id == 0 or repton_id == self.particles.number - 1:
+            old = self._slack_number(repton_id, self.particles.positions[repton_id])
+            new = self._slack_number(repton_id, self.particles.positions[repton_id] + t_vect )
+            return numpy.exp(-0.5*self.rate*(new-old))
+        
+         #jesli nie hernia to nas nie interesuje
+        if numpy.any( self.particles.positions[repton_id-1] != self.particles.positions[repton_id+1]):
+            return 1
+       
+        old = self._slack_number(repton_id, self.particles.positions[repton_id])
+        new = self._slack_number(repton_id, self.particles.positions[repton_id] + t_vect )
+        return numpy.exp(-0.5*self.rate*(new-old))
         
 
 class PolymerDynamics(base.Dynamics):
         
     lattice = SquareLattice()
-    rules_classes = [NoTension, Hernia, CrossingBarrier, HorizontalElectricField]
+    rules_classes = [NoTension, Hernia, Bending, SlackElectrostatic,]
     particles_class = Polymer
         
         
@@ -148,8 +357,16 @@ class PolymerDynamics(base.Dynamics):
 if __name__ == "__main__":
     
     
-    symulator = PolymerDynamics(particles=10, link_length=1, hernia=0.5, crossing=0.2, epsilon=1)
-    for i in xrange(1000):
-        symulator.reconfigure()
+    symulator = PolymerDynamics(particles=10, link_length=1, hernia=0.5, crossing=0.2, epsilon=1, kappa=1, el=0.1)
+    #numpy.savetxt("test.txt", symulator.motion_matrix.reshape( (4,10)))
+    #symulator.reconfigure()
+    #print symulator.motion_matrix.reshape( (4,10))
+    
+
+    
+    
+    
+    
+  
     
     

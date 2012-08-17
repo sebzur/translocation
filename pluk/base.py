@@ -3,7 +3,6 @@ import numpy
 
 class Particles(object):
     def __init__(self, nparticles, dim, *args, **kwargs):
-        print 'Got dim:', dim, nparticles
         self.dim = dim
         self.number = nparticles
         self.positions = numpy.zeros((nparticles, dim))
@@ -163,6 +162,8 @@ class Dynamics(object):
             for repton_id in xrange(0, self.particles.number):
                 for rule in self.rules:
                     rate  =  rule.get_rate(repton_id, trans_id)
+                    if rate == 0:
+                        break
                     idx = self._get_coordinate(trans_id, repton_id)
                     self.motion_matrix[idx] = self.motion_matrix[idx] * rate
                     

@@ -334,8 +334,8 @@ class SlackElectrostatic(base.Rule):
 
 class PolymerDynamics(base.Dynamics):
         
-    lattice = SquareLattice()
-    rules_classes = [NoTension, Hernia, Bending, SlackElectrostatic,]
+    lattice = SecondNearestLattice()
+    rules_classes = [NoTension, Hernia,CrossingBarrier,Bending,SlackElectrostatic,HorizontalElectricField]
     particles_class = Polymer
         
         
@@ -358,8 +358,8 @@ if __name__ == "__main__":
     
     
     symulator = PolymerDynamics(particles=10, link_length=1, hernia=0.5, crossing=0.2, epsilon=1, kappa=1, el=0.1)
-    #numpy.savetxt("test.txt", symulator.motion_matrix.reshape( (4,10)))
-    #symulator.reconfigure()
+    print symulator.particles.positions
+    symulator.reconfigure()
     #print symulator.motion_matrix.reshape( (4,10))
     
 

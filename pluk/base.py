@@ -160,12 +160,13 @@ class Dynamics(object):
     def find_all_translations(self):
         for trans_id in xrange(0, self.lattice.get_trans_count()):
             for repton_id in xrange(0, self.particles.number):
+                rate = 1
                 for rule in self.rules:
-                    rate  =  rule.get_rate(repton_id, trans_id)
+                    rate  = rate *  rule.get_rate(repton_id, trans_id)
                     if rate == 0:
                         break
-                    idx = self._get_coordinate(trans_id, repton_id)
-                    self.motion_matrix[idx] = self.motion_matrix[idx] * rate
+                idx = self._get_coordinate(trans_id, repton_id)
+                self.motion_matrix[idx] = self.motion_matrix[idx] * rate
                     
         #zapamietaj sume kumulacyjna dla drabinki
         self.cumulative_prob = self.motion_matrix.cumsum()

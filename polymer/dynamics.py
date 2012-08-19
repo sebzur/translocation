@@ -45,14 +45,14 @@ class NoTension(base.Rule):
             #znajdz dlugosc z lewej strony 
             #oldeglosc 0-1 - length[0], 1-2- length[1] ...
             length = self.particles.link_length[repton_id-1]
-            if ((self.particles.positions[repton_id-1] - (self.particles.positions[repton_id]+t_vect)) ** 2).sum() > length:
+            if numpy.sqrt(((self.particles.positions[repton_id-1] - (self.particles.positions[repton_id]+t_vect)) ** 2).sum()) > length:
                 return 0
                 
         if (repton_id < self.particles.number - 1):
             length = self.particles.link_length[repton_id]
-            if ((self.particles.positions[repton_id+1] - (self.particles.positions[repton_id]+t_vect)) ** 2).sum() > length:
+            if numpy.sqrt(((self.particles.positions[repton_id+1] - (self.particles.positions[repton_id]+t_vect)) ** 2).sum()) > length:
                 return 0
-       
+        
         return self.rate
 
 class Hernia(base.Rule):
@@ -335,7 +335,7 @@ class SlackElectrostatic(base.Rule):
 class PolymerDynamics(base.Dynamics):
         
     lattice = SecondNearestLattice()
-    rules_classes = [NoTension, Hernia,CrossingBarrier,Bending,SlackElectrostatic,HorizontalElectricField]
+    rules_classes = [NoTension, Hernia, CrossingBarrier, Bending, HorizontalElectricField]
     particles_class = Polymer
         
         
@@ -352,15 +352,67 @@ class PolymerDynamics(base.Dynamics):
                 self.particles.positions[repton_id] = self.particles.positions[repton_id-1]
     
     
+
+class ProbabilityTest(object):
     
+    directory = "data"
+    
+    def __init__(self, symulator):
+        self.symulator = symulator
+        self.pos = []
+        self.mat = []
+        
+    def save_data(self, number):
+        file_pos = "%s/position_%s.dat" % (self.directory,number)
+        file_mat = "%s/motion_%s.dat" % (self.directory, number)
+        
+        numpy.savetxt(file_pos, self.symulator.particles.positions)
+        numpy.savetxt(file_mat, self.symulator.motion_matrix)
+    
+    def load_data(self, number):
+        file_pos = "%s/position_%s.dat" % (self.directory,number)
+        file_mat = "%s/motion_%s.dat" % (self.directory, number)
+        
+        self.pos = numpy.loadtxt(file_pos)
+        self.mat = numpy.loadtxt(file_mat)
+    
+    def check_data(self):
+        
+        self.symulator.particles.positions = 1 * self.pos
+        self.symulator.motion_matrix.fill(1)
+        self.symulator.find_all_translations()
+        return numpy.all(self.mat == self.symulator.motion_matrix)
+        
+        
+        
+        
+
     
 if __name__ == "__main__":
     
     
-    symulator = PolymerDynamics(particles=10, link_length=1, hernia=0.5, crossing=0.2, epsilon=1, kappa=1, el=0.1)
-    print symulator.particles.positions
-    symulator.reconfigure()
-    #print symulator.motion_matrix.reshape( (4,10))
+    symulator = PolymerDynamics(particles=5, link_length=1, hernia=0.5, crossing=0.5, kappa=0.1, el=0.1, epsilon=1)
+    
+    test = ProbabilityTest(symulator)
+    test.save_data(0)
+    for i in range(1,1000):
+        symulator.reconfigure()
+        test.save_data(i)        
+            
+   
+    
+    for i in range(0,1000):
+        test.load_data(i)
+        
+        result = test.check_data()
+        print i, result
+        if not test.check_data():
+            print "ERROR"
+            break
+        
+
+        
+     
     
 
     

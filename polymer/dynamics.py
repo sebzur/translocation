@@ -125,7 +125,7 @@ class HorizontalElectricField(base.Rule):
 #TODO zrobic liste update
 class Bending(base.Rule):
     def initialize(self, *args, **kwargs):
-        self.rate = numpy.exp(0.5*kwargs.get('kappa'))
+        self.kappa = kwargs.get('kappa')
         
     def get_update_list(self, repton_id, trans_id):
         #tutaj to bedzie dynamiczne - dwa sasiednie zawsze  potem wszystskie ad do kolejengo z innej komorki
@@ -212,7 +212,7 @@ class Bending(base.Rule):
             vectors = numpy.diff(tab_old, axis=0)
             energy_new = self._get_end_energy(vectors)
         
-            return numpy.exp(-0.5*self.rate*(energy_new - energy_old))
+            return numpy.exp(-0.5*self.kappa*(energy_new - energy_old))
             
         #ogon
         if repton_id == self.particles.number-1:
@@ -231,7 +231,7 @@ class Bending(base.Rule):
             vectors = numpy.diff(tab_old, axis=0)
             energy_new = self._get_end_energy(vectors)
           
-            return numpy.exp(-0.5*self.rate*(energy_new - energy_old))
+            return numpy.exp(-0.5*self.kappa*(energy_new - energy_old))
         
           
         #jesli nie hernia to nas nie interesuje
@@ -263,7 +263,7 @@ class Bending(base.Rule):
         vectors_new = numpy.diff(tab_old, axis=0)
         energy_new = self._get_inter_energy(vectors_new)
         
-        return numpy.exp(-0.5*self.rate*(energy_new - energy_old))
+        return numpy.exp(-0.5*self.kappa*(energy_new - energy_old))
         
     
     def next_id(self, repton_id):
@@ -288,7 +288,7 @@ class Bending(base.Rule):
 class SlackElectrostatic(base.Rule):
     
     def initialize(self, *args, **kwargs):
-        self.rate = kwargs.get('el')
+        self.el = kwargs.get('el')
         
     def get_update_list(self, repton_id, trans_id):
         return self.particles.get_neighbours_idx(repton_id)
@@ -321,7 +321,7 @@ class SlackElectrostatic(base.Rule):
         if repton_id == 0 or repton_id == self.particles.number - 1:
             old = self._slack_number(repton_id, self.particles.positions[repton_id])
             new = self._slack_number(repton_id, self.particles.positions[repton_id] + t_vect )
-            return numpy.exp(-0.5*self.rate*(new-old))
+            return numpy.exp(-0.5*self.el*(new-old))
         
          #jesli nie hernia to nas nie interesuje
         if numpy.any( self.particles.positions[repton_id-1] != self.particles.positions[repton_id+1]):
@@ -329,7 +329,7 @@ class SlackElectrostatic(base.Rule):
        
         old = self._slack_number(repton_id, self.particles.positions[repton_id])
         new = self._slack_number(repton_id, self.particles.positions[repton_id] + t_vect )
-        return numpy.exp(-0.5*self.rate*(new-old))
+        return numpy.exp(-0.5*self.el*(new-old))
         
 
 class PolymerDynamics(base.Dynamics):

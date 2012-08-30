@@ -1,3 +1,4 @@
 How to run this?
 ----------------
-PYTHONPATH=$PYTHONPATH:/storage/software/git/translocation/:/storage/software/git/KMC/ python example.py -s 1000 -r 1 -p 4 -l 1 -e 0.1 -b 0.5 -c 0.5 -o /storage/tmp
+please see: https://github.com/sebzur/translocation/wiki
+

@@ -332,13 +332,8 @@ class SlackElectrostatic(base.Rule):
         return numpy.exp(-0.5*self.el*(new-old))
         
 
-class PolymerDynamics(base.Dynamics):
-        
-    lattice = SecondNearestLattice()
-    rules_classes = [NoTension, Hernia, CrossingBarrier, Bending, SlackElectrostatic, HorizontalElectricField]
-    particles_class = Polymer
-        
-        
+class Initializer(base.Dynamics):
+
     def initialize_particles(self, *args, **kwargs):
        
         trans_number =  self.lattice.get_initial_translations().shape[0]
@@ -350,7 +345,27 @@ class PolymerDynamics(base.Dynamics):
                 self.particles.positions[repton_id] = self.particles.positions[repton_id-1] + self.lattice.get_translation(idx)
             else:
                 self.particles.positions[repton_id] = self.particles.positions[repton_id-1]
-    
+
+
+class ReptationModel(Initializer):
+        
+    lattice = SquareLattice()
+    rules_classes = [NoTension, Hernia, HorizontalElectricField]
+    particles_class = Polymer
+
+class RouseModel(Initializer):
+
+    lattice = SecondNearestLattice()
+    rules_classes = [NoTension, Hernia, CrossingBarrier, HorizontalElectricField]
+    particles_class = Polymer
+
+
+class RealisticModel(Initializer):
+        
+    lattice = SecondNearestLattice()
+    rules_classes = [NoTension, Hernia, CrossingBarrier, Bending, SlackElectrostatic, HorizontalElectricField]
+    particles_class = Polymer
+      
     
 
 class ProbabilityTest(object):

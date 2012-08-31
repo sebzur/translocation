@@ -333,7 +333,7 @@ class SlackElectrostatic(base.Rule):
         
 
 
-class Initializer(object):
+class Initializer(base.Dynamics):
 
     def initialize_particles(self, *args, **kwargs):
        
@@ -348,20 +348,20 @@ class Initializer(object):
                 self.particles.positions[repton_id] = self.particles.positions[repton_id-1]
 
 
-class ReptationModel(base.Dynamics, Initializer):
+class ReptationModel(Initializer):
         
     lattice = SquareLattice()
     rules_classes = [NoTension, Hernia, HorizontalElectricField]
     particles_class = Polymer
 
-class RouseModel(base.Dynamics, Initializer):
+class RouseModel(Initializer):
 
     lattice = SecondNearestLattice()
     rules_classes = [NoTension, Hernia, CrossingBarrier, HorizontalElectricField]
     particles_class = Polymer
 
 
-class RealisticModel(base.Dynamics, Initializer):
+class RealisticModel(Initializer):
         
     lattice = SecondNearestLattice()
     rules_classes = [NoTension, Hernia, CrossingBarrier, Bending, SlackElectrostatic, HorizontalElectricField]

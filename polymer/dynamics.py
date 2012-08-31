@@ -335,7 +335,7 @@ class SlackElectrostatic(base.Rule):
 class PolymerDynamics(base.Dynamics):
         
     lattice = SecondNearestLattice()
-    rules_classes = [NoTension, Hernia, CrossingBarrier, Bending, HorizontalElectricField]
+    rules_classes = [NoTension, Hernia, CrossingBarrier, Bending, SlackElectrostatic, HorizontalElectricField]
     particles_class = Polymer
         
         

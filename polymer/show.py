@@ -54,7 +54,7 @@ except:
 
 
 while 1:
-	rate(1000)
+	rate(10)
 	
 	try:
 		wiersz=inp.readline()

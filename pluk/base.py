@@ -167,7 +167,7 @@ class Dynamics(object):
                         break
                 idx = self._get_coordinate(trans_id, repton_id)
                 self.motion_matrix[idx] = self.motion_matrix[idx] * rate
-                    
+                        
         #zapamietaj sume kumulacyjna dla drabinki
         self.cumulative_prob = self.motion_matrix.cumsum()
         

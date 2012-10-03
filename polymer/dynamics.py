@@ -122,7 +122,7 @@ class HorizontalElectricField(base.Rule):
         return 1
 
 
-#TODO zrobic liste update
+
 class Bending(base.Rule):
     def initialize(self, *args, **kwargs):
         self.kappa = kwargs.get('kappa')
@@ -332,7 +332,6 @@ class SlackElectrostatic(base.Rule):
         return numpy.exp(-0.5*self.el*(new-old))
         
 
-
 class Initializer(base.Dynamics):
 
     def initialize_particles(self, *args, **kwargs):
@@ -407,26 +406,19 @@ class ProbabilityTest(object):
 if __name__ == "__main__":
     
     
-    symulator = PolymerDynamics(particles=5, link_length=1, hernia=0.5, crossing=0.5, kappa=0.1, el=0.1, epsilon=1)
+    symulator = ReptationModel(particles=4, link_length=1, hernia=0, epsilon=0.01)
+    print symulator.lattice.get_translations()
+    print symulator.lattice.get_initial_translations()
+    #plik = open("traj.pos",'w')
+    #for step in range(0,10000):
+        #tmp="%s" % step;
+        #for i in symulator.particles.positions:
+            #tmp = "%s %d %d 0" % (tmp, i[0],i[1])
+        #plik.write("%s\n" % tmp)
+        #symulator.reconfigure()
     
-    test = ProbabilityTest(symulator)
-    test.save_data(0)
-    for i in range(1,1000):
-        symulator.reconfigure()
-        test.save_data(i)        
-            
-   
     
-    for i in range(0,1000):
-        test.load_data(i)
-        
-        result = test.check_data()
-        print i, result
-        if not test.check_data():
-            print "ERROR"
-            break
-        
-
+    #plik.close()
         
      
     

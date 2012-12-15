@@ -114,6 +114,16 @@ class Dynamics(object):
         random = numpy.random.uniform(low=0.0000000001, high=1)
         return -1.0*numpy.log(random)/cum_prob
     
+    #dla testow bylo
+    def reconfigure_bin(self, *args, **kwargs):
+        rand_nr = numpy.random.rand() * self.cumulative_prob[-1]
+       
+        idx = numpy.searchsorted(self.cumulative_prob, rand_nr)
+        prob= self.cumulative_prob[idx]
+        trans_id, particle_id = divmod(idx, self.particles.number)
+        t_vect = self.lattice.get_translation(trans_id) 
+        self.particles.positions[particle_id] += t_vect
+        self.update(particle_id, trans_id)
         
     def reconfigure(self, *args, **kwargs):
         rand_nr = numpy.random.rand() * self.cumulative_prob[-1]
@@ -135,7 +145,7 @@ class Dynamics(object):
            for particle_idx in rule.get_update_list(particle_id, trans_id):
                 update_list[particle_idx] = 1
         
-        #updarte motion_matrix
+        #update motion_matrix
         for trans_idx in xrange(0, self.lattice.get_trans_count()):
             for particle_idx, val in enumerate(update_list):
                 if val == 1:

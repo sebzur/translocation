@@ -99,7 +99,7 @@ class CrossingBarrier(base.Rule):
         if repton_id != 0 and repton_id != self.particles.number-1:
             if numpy.all(self.particles.positions[repton_id -1] == self.particles.positions[repton_id+1]):
                 return 0
-        
+       
         #odleglos sprawdzil wczesniej - wiec ok
         return self.rate
         
@@ -366,7 +366,11 @@ class RealisticModel(Initializer):
     rules_classes = [NoTension, Hernia, CrossingBarrier, Bending, SlackElectrostatic, HorizontalElectricField]
     particles_class = Polymer
       
-    
+
+#-------------------------------------------------------------------------------
+#       Test only classes 
+#       Run without MPI
+#------------------------------------------------------------------------------
 
 class ProbabilityTest(object):
     
@@ -400,27 +404,128 @@ class ProbabilityTest(object):
         
         
         
+class MolaSaver(object):
+    directory = "movie"
+    
+    def __init__(self, symulator, filename):
+        self.symulator = symulator
+        self.filename = filename
+        self.output = open("%s/%s" % (self.directory, self.filename),'w')
+    
+    def save_data(self, step):
+        tmp="%s" % step;
+        for i in symulator.particles.positions:
+            tmp = "%s %d %d 0" % (tmp, i[0],i[1])
+        self.output.write("%s\n" % tmp)
+    
+    def save_to_cms3d(self, step, origin):
+        tmp="%s" % step;
+        x_o = origin[0]
+        y_o = origin[1]
+        for idx, val  in enumerate(symulator.particles.positions):
+            tmp = "%s %d %d %d" % (tmp, val[0]-x_o,val[1]-y_o, idx)
+        self.output.write("%s\n" % tmp)
+        
+    def save_to_cms(self, step, origin):
+        tmp="%s" % step;
+        x_o = origin[0]
+        y_o = origin[1]
+        for idx, val  in enumerate(symulator.particles.positions):
+            tmp = "%s %d %d 0" % (tmp, val[0]-x_o,val[1]-y_o)
+        self.output.write("%s\n" % tmp)
+
+class Vdrift(object):
+    
+    def __init__(self, symulator):
+        self.symulator = symulator
+        self.time = 0
+        self.cms = 0
+        self.cms_old = 0
+    
+    def set_old_cms(self):
+        self.cms_old = symulator.particles.get_cms_coord()
+        
+    def calculate_vdrift(self):
+        cms = symulator.particles.get_cms_coord()
+        self.cms = self.cms + (cms - self.cms_old)
+        self.time = self.time + symulator.get_lifetime()
+        
+    def get_result(self):
+        return self.cms[0]/self.time
         
 
+class Correlation(object):
+    
+    def __init__(self, symulator, length):
+        self.symulator = symulator
+        self.length = length
+        self.start_index = int(self.symulator.particles.number * 0.5)
+        
+        self.cor_sum = numpy.zeros(length)
+        self.cor_numb = numpy.zeros(length)
+    
+    
+    def find_tauts(self):
+        begin_index = []
+        ile = 0
+        for idx in range(1, self.symulator.particles.number-2):
+            if numpy.any(self.symulator.particles.positions[idx] != self.symulator.particles.positions[idx+1]):
+               ile = ile + 1;
+               begin_index.append(idx)
+        
+        return begin_index
+    
+    def correlation_el(self, vector_u, vector_v, n):
+        self.cor_sum[n] = self.cor_sum[n] + numpy.dot(vector_u, vector_v)
+        self.cor_numb[n] = self.cor_numb[n] + 1 
+        
+    def calculate(self):
+        
+        links = self.find_tauts()
+        start = int(len(links) *0.5 +0.5)
+        if start >= self.length+1 and len(links) >= 2 * self.length+1:
+            left = links[:start+1]
+            right = links[start:] 
+            left.reverse()
+            
+            sides = [left, right]
+            for tab in sides:
+                ile = 0;
+                idx_e = tab[1]
+                idx_s = tab[0]
+                vector_u = self.symulator.particles.positions[idx_e] - self.symulator.particles.positions[idx_s]
+                self.correlation_el(vector_u, vector_u, ile)
+                idx_s = idx_e
+                for idx_e in tab[2:]:
+                    ile = ile + 1
+                    if ile >= self.length:
+                        break
+                    vector_v = self.symulator.particles.positions[idx_e] - self.symulator.particles.positions[idx_s]
+                    self.correlation_el(vector_u, vector_v, ile)
+                    idx_s = idx_e
+        
+    def get_correlation_result(self):
+            return self.cor_sum / self.cor_numb
+     
+             
     
 if __name__ == "__main__":
     
     
-    symulator = ReptationModel(particles=4, link_length=1, hernia=0, epsilon=0.01)
-    print symulator.lattice.get_translations()
-    print symulator.lattice.get_initial_translations()
-    #plik = open("traj.pos",'w')
-    #for step in range(0,10000):
-        #tmp="%s" % step;
-        #for i in symulator.particles.positions:
-            #tmp = "%s %d %d 0" % (tmp, i[0],i[1])
-        #plik.write("%s\n" % tmp)
-        #symulator.reconfigure()
+    symulator = RouseModel(particles=50, link_length=1, hernia=0.5, crossing=0.5, epsilon=1)
+    cor = Correlation(symulator,10)
+    for i in xrange(0,10000):
+        symulator.reconfigure()
+        symulator.particles.positions
+        cor.calculate()
+        #print symulator.particles.positions
+        #print "Start = ", cor.start_index
+        #print "Prev = ", cor.get_to_begin_nonzero(cor.start_index)
+        #print "Next = ", cor.get_to_end_nonzero(cor.start_index)
+        #cor.correlation()
+    print cor.get_correlation_result()
+    #numpy.savetxt("wynik.txt",cor.cor_sum/cor.cor_numb)
     
-    
-    #plik.close()
-        
-     
     
 
     

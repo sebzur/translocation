@@ -3,6 +3,37 @@ import os
 from kmc.sampler import Sampler
 
 
+class DriftVelocity(Sampler):
+    
+    def initialize(self):
+        self.time = 0
+        self.cms_x = 0
+        
+    def sample(self, step, dt, old_cfg, new_cfg, *args, **kwargs):
+        self.epsilon = old_cfg.kwargs.get('epsilon')
+        self.particles = old_cfg.kwargs.get('particles')
+        
+        if step > old_cfg.particles.number**3:
+            self.time += dt
+            self.cms_x += new_cfg.particles.get_cms_coord()[0] - old_cfg.particles.get_cms_coord()[0]
+       
+    @classmethod
+    def merge(cls, results, steps, repeats, **kwargs):
+        
+        filename = os.path.join(kwargs.get('output'), 'drift_vel.dat')
+        
+        plik = open(filename, 'a')
+        vel = []
+        for idx, val in enumerate(results):
+             vdrift = val.cms_x/val.time
+             vel.append(vdrift)
+             
+        vel = numpy.array(vel)
+        vel_error = vel.std()/numpy.sqrt(vel.size)
+        plik.write("%.20f\t%.20f\t%.20f\n" % (val.epsilon, vel.mean(), vel_error))
+        plik.close()
+
+
 class Diffusion(Sampler):
     
     def initialize(self):

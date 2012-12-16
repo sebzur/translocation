@@ -1,7 +1,7 @@
 from optparse import OptionParser
 from kmc.parallel import ParallelMC
 from kmc.serial import SerialMC, System
-from samplers import Diffusion, Trajectory, DriftVelocity
+from samplers import Diffusion, Trajectory, DriftVelocity, LinkCorrelation
 from dynamics import RealisticModel
 
 parser = OptionParser()
@@ -14,6 +14,7 @@ parser.add_option('-b', '--crossing', type='float', help="Crossing")
 parser.add_option('-c', '--hernia', type='float', help="Hernia")
 parser.add_option('-k', '--kappa', type='float', help="Kappa")
 parser.add_option('-x', '--exclusion', type='float', help="Exclusion")
+parser.add_option('-z', '--cor_len', type='int', help="Corelation length")
 parser.add_option('-o', '--output', type='str', help="Output dir")
 
 
@@ -28,7 +29,7 @@ if __name__=='__main__':
     total_steps = thermalization + options.steps
 
     # path is some extra argument, steps and repeats are required
-    ParallelMC().run(steps=total_steps, repeats=options.runs, run_cls=PolymerSerialMC, smpl_classes=[DriftVelocity], particles=options.particles, link_length=options.link_length, epsilon=options.epsilon, crossing=options.crossing, hernia=options.hernia, kappa=options.kappa, el=options.exclusion, output=options.output)
+    ParallelMC().run(steps=total_steps, repeats=options.runs, run_cls=PolymerSerialMC, smpl_classes=[LinkCorrelation], particles=options.particles, link_length=options.link_length, epsilon=options.epsilon, crossing=options.crossing, hernia=options.hernia, kappa=options.kappa, el=options.exclusion,cor_len=options.cor_len,output=options.output)
 
 
 

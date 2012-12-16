@@ -21,15 +21,18 @@ scene = display(title="Klaster",width=win,height=win,x=0,y=0,range=6*L,center=(0
 try:
         
 	inp=open(plik,'r')
+	
 	mols=[]
         lines=[]
         
-	arrow(pos=(0,0,0), axis=(1,0,0))
-	arrow(pos=(0,0,0), axis=(0,1,0), color=color.red)
-	arrow(pos=(0,0,0), axis=(0,0,1), color=color.blue)
+	#arrow(pos=(0,0,0), axis=(1,0,0))
+	#arrow(pos=(0,0,0), axis=(0,1,0), color=color.red)
+	#arrow(pos=(0,0,0), axis=(0,0,1), color=color.blue)
 	
+	print "aaaaa"
 	wiersz=inp.readline()
 	w=wiersz.split()
+	print w
 
 	krok=float(w[0])
     

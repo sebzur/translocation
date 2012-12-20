@@ -2,6 +2,7 @@ import numpy
 import os
 from kmc.sampler import Sampler
 
+
 class AveragePosition(Sampler):
     
     def __init__(self, steps, **kwargs):
@@ -41,10 +42,7 @@ class AveragePosition(Sampler):
             
         plik.close()
 
-    
-
 class LinkCorrelation(Sampler):
-    
     
     def __init__(self, steps, **kwargs):
         super(LinkCorrelation, self).__init__(steps, **kwargs)
@@ -142,7 +140,6 @@ class DriftVelocity(Sampler):
     def merge(cls, results, steps, repeats, **kwargs):
 
         filename = os.path.join(kwargs.get('output'), 'drift_vel.dat')
-
         plik = open(filename, 'a')
         vel = []
         for idx, val in enumerate(results):

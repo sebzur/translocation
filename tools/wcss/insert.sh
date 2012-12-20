@@ -5,4 +5,4 @@
 # ---PBS -software translocate_"$N"_"$s"_"$eps"_"$c"
 # i tak dalej
 cd ~/git/translocation/polymer
-mpiexec -n 40 /usr/local/zgoraphysics/bin/python2.7 reptation.py -p $N -s $s -r 80 -e $eps -l 1 -o ~/TRANS/ >> ~/TRANS/rept_out.err >> ~/TRANS/rept_out.out
+mpiexec -n 40 /usr/local/zgoraphysics/bin/python2.7 rouse.py -p $N -s $s -r 40 -e $eps -l 1 -b 0.1 -c 0.1 -o ~/TRANS/ >> ~/TRANS/rept_out.err >> ~/TRANS/rept_out.out

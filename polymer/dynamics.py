@@ -363,7 +363,7 @@ class RouseModel(Initializer):
 class RealisticModel(Initializer):
         
     lattice = SecondNearestLattice()
-    rules_classes = [NoTension, Hernia, CrossingBarrier, Bending, SlackElectrostatic, HorizontalElectricField]
+    rules_classes = [NoTension, Hernia, CrossingBarrier, Bending, SlackElectrostatic]
     particles_class = Polymer
       
 

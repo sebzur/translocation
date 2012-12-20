@@ -2,9 +2,47 @@ import numpy
 import os
 from kmc.sampler import Sampler
 
-        
-class LinkCorrelation(Sampler):
+
+class AveragePosition(Sampler):
     
+    def __init__(self, steps, **kwargs):
+        super(AveragePosition, self).__init__(steps, **kwargs)
+        self.particles = kwargs['particles']
+        self.hernia = kwargs['hernia']
+        self.crossing = kwargs['crossing']
+        self.kappa = kwargs['kappa']
+        self.el = kwargs['el']
+        self.coordinates = numpy.zeros((self.particles, 2))
+        self.suma = 0
+        
+        
+    def initialize(self):
+        self.cms_x = [0]
+        
+    def sample(self, step, dt, old_cfg, new_cfg, *args, **kwargs):
+        if step > old_cfg.particles.number**3:
+            cms = old_cfg.particles.get_cms_coord()
+            for idx in xrange(0,self.particles):
+                self.coordinates[idx] =  self.coordinates[idx] + (old_cfg.particles.positions[idx] - cms)
+            self.suma = self.suma +1
+
+    @classmethod
+    def merge(cls, results, steps, repeats, **kwargs):
+        filename = os.path.join(kwargs.get('output'), 'positions.dat')
+        plik = open(filename, 'a')
+        tmp = '# steps = %d  rep=%s  h=%s c=%s  kapp=%s  el=%s\n' % (steps - int(kwargs['particles'])**3, kwargs['particles'], kwargs['hernia'], kwargs['crossing'], kwargs['kappa'], kwargs['el'])
+        plik.write(tmp)
+        
+        tmp = numpy.zeros( (kwargs['particles'],2))
+        for idx, val in enumerate(results):
+            tmp = tmp + val.coordinates/val.suma
+        
+        for idx, val in enumerate(tmp):
+            plik.write("%.20f\t%.20f\t%.20f\n" % (idx, val[0], val[1]))
+            
+        plik.close()
+
+class LinkCorrelation(Sampler):
     
     def __init__(self, steps, **kwargs):
         super(LinkCorrelation, self).__init__(steps, **kwargs)
@@ -65,8 +103,10 @@ class LinkCorrelation(Sampler):
     def merge(cls, results, steps, repeats, **kwargs):
         
         filename = os.path.join(kwargs.get('output'), 'link_correlation.dat')
-
+    
         plik = open(filename, 'a')
+        tmp = '# steps = %d  rep=%s  h=%s c=%s  kapp=%s  el=%s, cor_len=%s\n' % (steps - int(kwargs['particles'])**3, kwargs['particles'], kwargs['hernia'], kwargs['crossing'], kwargs['kappa'], kwargs['el'], kwargs['cor_len'])
+        plik.write(tmp)
         size = results[0].length
         correlation = numpy.zeros(size)
         
@@ -100,18 +140,12 @@ class DriftVelocity(Sampler):
     def merge(cls, results, steps, repeats, **kwargs):
 
         filename = os.path.join(kwargs.get('output'), 'drift_vel.dat')
-
->>>>>>> 174eeece60135434cb64bbfac2e292b351a1674a:polymer/samplers.py
         plik = open(filename, 'a')
         vel = []
         for idx, val in enumerate(results):
              vdrift = val.cms_x/val.time
              vel.append(vdrift)
-<<<<<<< HEAD:polymer/samplers.py
-             
-=======
 
->>>>>>> 174eeece60135434cb64bbfac2e292b351a1674a:polymer/samplers.py
         vel = numpy.array(vel)
         vel_error = vel.std()/numpy.sqrt(vel.size)
         plik.write("%.20f\t%.20f\t%.20f\n" % (val.epsilon, vel.mean(), vel_error))

@@ -1,7 +1,7 @@
 from optparse import OptionParser
 from kmc.parallel import ParallelMC
 from kmc.serial import SerialMC, System
-from samplers import Diffusion, Trajectory,DriftVelocity
+from samplers import Diffusion, Trajectory, LinkCorrelation, DriftVelocity
 from dynamics import RouseModel
 
 parser = OptionParser()

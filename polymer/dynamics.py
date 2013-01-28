@@ -192,8 +192,12 @@ class Bending(base.Rule):
         skalar = -1 * vectors[0][0]*vectors[1][0] + -1*vectors[0][1]*vectors[1][1]
         return 1 + skalar
             
-            
+    
     def get_rate(self, repton_id, trans_id, *args, **kwargs):
+        energy = self.get_trans_energy(repton_id, trans_id, *args, **kwargs)
+        return numpy.exp(-0.5 * energy)
+        
+    def get_trans_energy(self, repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
         #glowa
         if repton_id == 0:
@@ -212,7 +216,7 @@ class Bending(base.Rule):
             vectors = numpy.diff(tab_old, axis=0)
             energy_new = self._get_end_energy(vectors)
         
-            return numpy.exp(-0.5*self.kappa*(energy_new - energy_old))
+            return self.kappa*(energy_new - energy_old)
             
         #ogon
         if repton_id == self.particles.number-1:
@@ -231,12 +235,12 @@ class Bending(base.Rule):
             vectors = numpy.diff(tab_old, axis=0)
             energy_new = self._get_end_energy(vectors)
           
-            return numpy.exp(-0.5*self.kappa*(energy_new - energy_old))
+            return self.kappa*(energy_new - energy_old)
         
           
         #jesli nie hernia to nas nie interesuje
         if numpy.any( self.particles.positions[repton_id-1] != self.particles.positions[repton_id+1]):
-            return 1
+            return 0 #bo rate musi wyjsc 1
             
         tab_old = numpy.zeros((5,2))
         
@@ -263,7 +267,7 @@ class Bending(base.Rule):
         vectors_new = numpy.diff(tab_old, axis=0)
         energy_new = self._get_inter_energy(vectors_new)
         
-        return numpy.exp(-0.5*self.kappa*(energy_new - energy_old))
+        return self.kappa*(energy_new - energy_old)
         
     
     def next_id(self, repton_id):
@@ -312,8 +316,12 @@ class SlackElectrostatic(base.Rule):
             
         return number
         
-        
+     
     def get_rate(self, repton_id, trans_id, *args, **kwargs):
+        energy = self.get_trans_energy(repton_id, trans_id, *args, **kwargs)
+        return numpy.exp(-0.5 * energy)
+            
+    def get_trans_energy(self, repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
      
         #jesli nie konce i nie hernie to sie nie zmiania
@@ -321,15 +329,15 @@ class SlackElectrostatic(base.Rule):
         if repton_id == 0 or repton_id == self.particles.number - 1:
             old = self._slack_number(repton_id, self.particles.positions[repton_id])
             new = self._slack_number(repton_id, self.particles.positions[repton_id] + t_vect )
-            return numpy.exp(-0.5*self.el*(new-old))
+            return self.el*(new-old)
         
          #jesli nie hernia to nas nie interesuje
         if numpy.any( self.particles.positions[repton_id-1] != self.particles.positions[repton_id+1]):
-            return 1
+            return 0 #bo rate = 1
        
         old = self._slack_number(repton_id, self.particles.positions[repton_id])
         new = self._slack_number(repton_id, self.particles.positions[repton_id] + t_vect )
-        return numpy.exp(-0.5*self.el*(new-old))
+        return self.el*(new-old)
         
 
 class Initializer(base.Dynamics):
@@ -356,7 +364,7 @@ class ReptationModel(Initializer):
 class RouseModel(Initializer):
 
     lattice = SecondNearestLattice()
-    rules_classes = [NoTension, Hernia, CrossingBarrier, HorizontalElectricField]
+    rules_classes = [NoTension, Hernia, CrossingBarrier]
     particles_class = Polymer
 
 
@@ -366,6 +374,31 @@ class RealisticModel(Initializer):
     rules_classes = [NoTension, Hernia, CrossingBarrier, Bending, SlackElectrostatic]
     particles_class = Polymer
       
+
+#--------------------------------------------------
+#       METROPOLIS CLASSES
+#--------------------------------------------------
+
+class MetropolisInitializer(base.Metropolis):
+
+    def initialize_particles(self, *args, **kwargs):
+       
+        trans_number =  self.lattice.get_initial_translations().shape[0]
+        
+        for repton_id, pos in enumerate(self.particles.positions[1:]):
+            repton_id += 1
+            idx = numpy.random.randint(trans_number )
+            if numpy.random.rand() < 0.7:
+                self.particles.positions[repton_id] = self.particles.positions[repton_id-1] + self.lattice.get_translation(idx)
+            else:
+                self.particles.positions[repton_id] = self.particles.positions[repton_id-1]
+class RealisticMetropolisModel(MetropolisInitializer):
+        
+    lattice = SecondNearestLattice()
+    rules_classes = [NoTension, Hernia, CrossingBarrier]
+    energy_classes = [Bending, SlackElectrostatic]
+    particles_class = Polymer
+
 
 #-------------------------------------------------------------------------------
 #       Test only classes 
@@ -511,20 +544,24 @@ class Correlation(object):
     
 if __name__ == "__main__":
     
+    symulator = RealisticMetropolisModel(particles=20, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
+    test = RealisticMetropolisModel(particles=20, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
     
-    symulator = RouseModel(particles=50, link_length=1, hernia=0.5, crossing=0.5, epsilon=1)
-    cor = Correlation(symulator,10)
-    for i in xrange(0,10000):
+    test.particles.positions = 1.* symulator.particles.positions
+    
+    for i in xrange(0,100000):
         symulator.reconfigure()
-        symulator.particles.positions
-        cor.calculate()
-        #print symulator.particles.positions
-        #print "Start = ", cor.start_index
-        #print "Prev = ", cor.get_to_begin_nonzero(cor.start_index)
-        #print "Next = ", cor.get_to_end_nonzero(cor.start_index)
-        #cor.correlation()
-    print cor.get_correlation_result()
-    #numpy.savetxt("wynik.txt",cor.cor_sum/cor.cor_numb)
+        
+        test.particles.positions = 1.* symulator.particles.positions
+        test.motion_matrix.fill(1)
+        test.find_all_translations()
+        
+        if  not numpy.all(test.motion_matrix == symulator.motion_matrix):
+            print "FAIL !!!!!!!!!!!!!"
+            
+        
+        
+
     
     
 

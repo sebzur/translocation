@@ -133,7 +133,7 @@ class Dynamics(object):
                 trans_id, particle_id = divmod(idx, self.particles.number)
                 t_vect = self.lattice.get_translation(trans_id) 
                 break
-                
+        
         self.particles.positions[particle_id] += t_vect
         self.update(particle_id, trans_id)
         
@@ -190,26 +190,47 @@ class Dynamics(object):
     
     
         
-#if __name__ == "__main__":
+class Metropolis(Dynamics):
     
-    #epsilon = 0.1
+    energy_classes = []
     
-    #symulator = BendingDynamics(reptons=6, link_length=1, dim=2, epsilon=epsilon, hernia=0.5, crossing=0.3, kappa=0.5)
-    #print symulator.polimer.positions
-    #print symulator.motion_matrix.reshape(8,6)
+    def __init__(self, *args, **kwargs):
+        super(Metropolis, self).__init__(*args, **kwargs)
+        self.temp = kwargs['temp']
+        self.energies = []
+        self.initialize_energies(*args, **kwargs)
     
-    
-    
-    #plik = open("traj.pos",'w')
-    
-    #for i in range(100000):
-        #symulator.reconfigure()
-        #nap = "%d" % i
+    def initialize_energies(self, *args, **kwargs):
+        for idx, energy in enumerate(self.energy_classes):
+            self.energies.append(energy(self.particles, self.lattice, *args, **kwargs))
+         
+    def metropolis(self, particle_id, trans_id, temp):
+        energy_sum = 0
+        for en in self.energies:
+            w = en.get_trans_energy(particle_id, trans_id)
+            energy_sum = energy_sum + w
+        if energy_sum <= 0 :
+            return True
+        else:
+            zeta = numpy.random.rand() 
+            if zeta < numpy.exp(-1.0*energy_sum/temp):
+                return True
+        return False
         
-        #for x,y in symulator.polimer.positions:
-            #nap = "%s %d %d 0 " % (nap, x,y)
-        #nap = "%s\n" % nap
+    def reconfigure(self, *args, **kwargs):
+        rand_nr = numpy.random.rand() * self.cumulative_prob[-1]
+       
+        for idx, prob in enumerate(self.cumulative_prob):
+            if rand_nr <= prob:
+                trans_id, particle_id = divmod(idx, self.particles.number)
+                t_vect = self.lattice.get_translation(trans_id) 
+                break
+        #tutaj modtfikacja pod metropolis'a        
+        if self.metropolis(particle_id, trans_id, self.temp):
+            self.particles.positions[particle_id] += t_vect
+            
+        self.update(particle_id, trans_id)
         
-        #plik.write(nap)
-    #plik.close()
+    
+    
         

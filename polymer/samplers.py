@@ -102,7 +102,7 @@ class LinkCorrelation(Sampler):
     @classmethod
     def merge(cls, results, steps, repeats, **kwargs):
         
-        filename = os.path.join(kwargs.get('output'), 'link_correlation.dat')
+        filename = os.path.join(kwargs.get('output'), 'link_correlation_met.dat')
     
         plik = open(filename, 'a')
         tmp = '# steps = %d  rep=%s  h=%s c=%s  kapp=%s  el=%s, cor_len=%s\n' % (steps - int(kwargs['particles'])**3, kwargs['particles'], kwargs['hernia'], kwargs['crossing'], kwargs['kappa'], kwargs['el'], kwargs['cor_len'])

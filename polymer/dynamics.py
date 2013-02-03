@@ -237,10 +237,15 @@ class Bending(base.Rule):
           
             return self.kappa*(energy_new - energy_old)
         
-          
-        #jesli nie hernia to nas nie interesuje
-        if numpy.any( self.particles.positions[repton_id-1] != self.particles.positions[repton_id+1]):
-            return 0 #bo rate musi wyjsc 1
+        
+        hernia = numpy.all( self.particles.positions[repton_id-1] == self.particles.positions[repton_id+1])
+        crossing = t_vect[0] != 0 and t_vect[1] != 0 
+            
+        if not (hernia or crossing):
+            return 0
+        #jesli nie hernia to nas nie interesuje - BZDURA bo corssing barrer 
+        #if numpy.any( self.particles.positions[repton_id-1] != self.particles.positions[repton_id+1]):
+         #   return 0 #bo rate musi wyjsc 1
             
         tab_old = numpy.zeros((5,2))
         
@@ -266,7 +271,7 @@ class Bending(base.Rule):
         tab_old[2] = tab_old[2] + t_vect
         vectors_new = numpy.diff(tab_old, axis=0)
         energy_new = self._get_inter_energy(vectors_new)
-        
+       
         return self.kappa*(energy_new - energy_old)
         
     
@@ -392,6 +397,7 @@ class MetropolisInitializer(base.Metropolis):
                 self.particles.positions[repton_id] = self.particles.positions[repton_id-1] + self.lattice.get_translation(idx)
             else:
                 self.particles.positions[repton_id] = self.particles.positions[repton_id-1]
+                
 class RealisticMetropolisModel(MetropolisInitializer):
         
     lattice = SecondNearestLattice()
@@ -544,20 +550,24 @@ class Correlation(object):
     
 if __name__ == "__main__":
     
-    symulator = RealisticMetropolisModel(particles=20, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
-    test = RealisticMetropolisModel(particles=20, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
+    symulator = RealisticMetropolisModel(particles=10, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
     
-    test.particles.positions = 1.* symulator.particles.positions
+    print symulator.particles.positions
+    symulator.reconfigure()
     
-    for i in xrange(0,100000):
-        symulator.reconfigure()
+    #test = RealisticMetropolisModel(particles=20, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
+    
+    #test.particles.positions = 1.* symulator.particles.positions
+    
+    #for i in xrange(0,100000):
+        #symulator.reconfigure()
         
-        test.particles.positions = 1.* symulator.particles.positions
-        test.motion_matrix.fill(1)
-        test.find_all_translations()
+        #test.particles.positions = 1.* symulator.particles.positions
+        #test.motion_matrix.fill(1)
+        #test.find_all_translations()
         
-        if  not numpy.all(test.motion_matrix == symulator.motion_matrix):
-            print "FAIL !!!!!!!!!!!!!"
+        #if  not numpy.all(test.motion_matrix == symulator.motion_matrix):
+            #print "FAIL !!!!!!!!!!!!!"
             
         
         

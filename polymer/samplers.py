@@ -201,3 +201,79 @@ class Trajectory(Sampler):
         for i, result in enumerate(results):
             data = numpy.array(zip(result.time, result.cms_x))
             numpy.savetxt('/tmp/traj_%s' % i, data)
+
+            
+            
+class LinkCorrelationBetter(Sampler):
+    
+    def __init__(self, steps, **kwargs):
+        super(LinkCorrelationBetter, self).__init__(steps, **kwargs)
+        self.length = kwargs.get('cor_len')
+        self.cor_sum = numpy.zeros(self.length)
+        self.cor_numb = numpy.zeros(self.length)
+    
+    
+    def find_tauts(self, cfg):
+        begin_index = []
+        ile = 0
+        for idx in range(1, cfg.particles.number-2):
+            if numpy.any(cfg.particles.positions[idx] != cfg.particles.positions[idx+1]):
+               ile = ile + 1;
+               begin_index.append(idx)
+        
+        return begin_index
+    
+    def correlation_el(self, vector_u, vector_v, n):
+        self.cor_sum[n] = self.cor_sum[n] + numpy.dot(vector_u, vector_v)
+        self.cor_numb[n] = self.cor_numb[n] + 1 
+        
+    def calculate(self, cfg):
+        links = self.find_tauts(cfg)
+        start = int(len(links) *0.5)
+        left = links[:start+1]
+        right = links[start:] 
+        left.reverse()
+       
+        
+        idx_s = right[0]
+        idx_e = idx_s+1
+        j = idx_s - right[0]
+        vector_u = cfg.particles.positions[idx_e] - cfg.particles.positions[idx_s]
+        self.correlation_el(vector_u, vector_u, j)
+        for idx_s in right[1:]:
+            idx_e = idx_s+1
+            j = idx_s - right[0]
+            if j>= self.length:
+                break
+            vector_v = cfg.particles.positions[idx_e] - cfg.particles.positions[idx_s]
+            self.correlation_el(vector_u, vector_v, j)
+            
+    def get_correlation_result(self):
+            return self.cor_sum / self.cor_numb
+            
+            
+    def sample(self, step, dt, old_cfg, new_cfg, *args, **kwargs):
+       
+        if step > old_cfg.particles.number**3:
+            self.calculate(old_cfg)
+
+    @classmethod
+    def merge(cls, results, steps, repeats, **kwargs):
+        
+        filename = os.path.join(kwargs.get('output'), 'link_correlation_better.dat')
+    
+        plik = open(filename, 'a')
+        tmp = '# steps = %d  rep=%s  h=%s c=%s  kapp=%s  el=%s, cor_len=%s\n' % (steps - int(kwargs['particles'])**3, kwargs['particles'], kwargs['hernia'], kwargs['crossing'], kwargs['kappa'], kwargs['el'], kwargs['cor_len'])
+        plik.write(tmp)
+        size = results[0].length
+        correlation = numpy.zeros(size)
+        
+        
+        for idx, val in enumerate(results):
+            correlation = correlation + val.get_correlation_result()
+            
+        res = correlation/len(results)
+        for idx, val in enumerate(res):
+            plik.write("%.20f\t%.20f\n" % (idx, val))
+        
+        plik.close()

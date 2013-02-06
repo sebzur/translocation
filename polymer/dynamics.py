@@ -503,7 +503,7 @@ class Correlation(object):
         self.cor_sum = numpy.zeros(length)
         self.cor_numb = numpy.zeros(length)
     
-    
+    #znajduje idx reptona na rozpoczyajcego tauta poczaw
     def find_tauts(self):
         begin_index = []
         ile = 0
@@ -546,14 +546,77 @@ class Correlation(object):
     def get_correlation_result(self):
             return self.cor_sum / self.cor_numb
      
-             
+ 
+ 
+class Correlation2(object):
+    
+    def __init__(self, symulator, length):
+        self.symulator = symulator
+        self.length = length
+        self.start_index = int(self.symulator.particles.number * 0.5)
+        
+        self.cor_sum = numpy.zeros(length)
+        self.cor_numb = numpy.zeros(length)
+    
+    #znajduje idx reptona na rozpoczyajcego tauta poczaw
+    def find_tauts(self):
+        begin_index = []
+        ile = 0
+        for idx in range(1, self.symulator.particles.number-2):
+            if numpy.any(self.symulator.particles.positions[idx] != self.symulator.particles.positions[idx+1]):
+               ile = ile + 1;
+               begin_index.append(idx)
+        
+        return begin_index
+    
+    def correlation_el(self, vector_u, vector_v, n):
+        self.cor_sum[n] = self.cor_sum[n] + numpy.dot(vector_u, vector_v)
+        self.cor_numb[n] = self.cor_numb[n] + 1 
+        
+    def find_taut_right(self, idx):
+        for idx_e in range(idx+1, self.symulator.particles.number-2):
+            if numpy.any(self.symulator.particles.positions[idx] != self.symulator.particles.positions[idx_e]):
+                return idx_e
+        return None    
+        
+    def calculate(self):
+        links = self.find_tauts()
+        start = int(len(links) *0.5 )
+        
+        left = links[:start]
+        right = links[start:] 
+        left.reverse()
+        
+        idx_s = right[0]
+        idx_e = idx_s+1
+        j = idx_s - right[0]
+        
+        vector_u = self.symulator.particles.positions[idx_e] - self.symulator.particles.positions[idx_s]
+        #self.correlation_el(vector_u, vector_u, j)
+        print right
+        print "LECIMY"
+        for idx_s in right[1:]:
+            idx_e = idx_s+1
+            j = idx_s - right[0]
+            vector_v = self.symulator.particles.positions[idx_e] - self.symulator.particles.positions[idx_s]
+            self.correlation_el(vector_u, vector_v, j)
+            print vector_u, vector_v
+            print j
+        
+            
+        
+       
+        
+    def get_correlation_result(self):
+            return self.cor_sum / self.cor_numb
     
 if __name__ == "__main__":
     
     symulator = RealisticMetropolisModel(particles=10, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
-    
+    korelacja = Correlation2(symulator,5)
     print symulator.particles.positions
-    symulator.reconfigure()
+    print korelacja.find_tauts()
+    korelacja.calculate()
     
     #test = RealisticMetropolisModel(particles=20, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
     

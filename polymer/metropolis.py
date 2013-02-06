@@ -1,7 +1,7 @@
 from optparse import OptionParser
 from kmc.parallel import ParallelMC
 from kmc.serial import SerialMC, System
-from samplers import Diffusion, Trajectory, DriftVelocity, LinkCorrelation, AveragePosition
+from samplers import Diffusion, Trajectory, DriftVelocity, LinkCorrelation, AveragePosition, LinkCorrelationBetter
 from dynamics import RealisticMetropolisModel
 
 parser = OptionParser()
@@ -31,7 +31,7 @@ if __name__=='__main__':
     total_steps = thermalization + options.steps
 
     # path is some extra argument, steps and repeats are required
-    ParallelMC().run(steps=total_steps, repeats=options.runs, run_cls=PolymerSerialMC, smpl_classes=[LinkCorrelation, AveragePosition], particles=options.particles, link_length=options.link_length, epsilon=options.epsilon, crossing=options.crossing, hernia=options.hernia, kappa=options.kappa, el=options.exclusion,cor_len=options.cor_len,temp=options.temp, output=options.output)
+    ParallelMC().run(steps=total_steps, repeats=options.runs, run_cls=PolymerSerialMC, smpl_classes=[LinkCorrelation, LinkCorrelationBetter], particles=options.particles, link_length=options.link_length, epsilon=options.epsilon, crossing=options.crossing, hernia=options.hernia, kappa=options.kappa, el=options.exclusion,cor_len=options.cor_len,temp=options.temp, output=options.output)
 
 
 

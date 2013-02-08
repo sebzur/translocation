@@ -195,7 +195,7 @@ class Bending(base.Rule):
     
     def get_rate(self, repton_id, trans_id, *args, **kwargs):
         energy = self.get_trans_energy(repton_id, trans_id, *args, **kwargs)
-        return numpy.exp(-0.5 * energy)
+        return numpy.exp(-1. * energy)
         
     def get_trans_energy(self, repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
@@ -216,7 +216,7 @@ class Bending(base.Rule):
             vectors = numpy.diff(tab_old, axis=0)
             energy_new = self._get_end_energy(vectors)
         
-            return self.kappa*(energy_new - energy_old)
+            return 0.5 * self.kappa*(energy_new - energy_old)
             
         #ogon
         if repton_id == self.particles.number-1:
@@ -235,7 +235,7 @@ class Bending(base.Rule):
             vectors = numpy.diff(tab_old, axis=0)
             energy_new = self._get_end_energy(vectors)
           
-            return self.kappa*(energy_new - energy_old)
+            return 0.5 * self.kappa*(energy_new - energy_old)
         
         
         hernia = numpy.all( self.particles.positions[repton_id-1] == self.particles.positions[repton_id+1])
@@ -272,7 +272,7 @@ class Bending(base.Rule):
         vectors_new = numpy.diff(tab_old, axis=0)
         energy_new = self._get_inter_energy(vectors_new)
        
-        return self.kappa*(energy_new - energy_old)
+        return 0.5 * self.kappa*(energy_new - energy_old)
         
     
     def next_id(self, repton_id):
@@ -324,7 +324,7 @@ class SlackElectrostatic(base.Rule):
      
     def get_rate(self, repton_id, trans_id, *args, **kwargs):
         energy = self.get_trans_energy(repton_id, trans_id, *args, **kwargs)
-        return numpy.exp(-0.5 * energy)
+        return numpy.exp(-1. * energy)
             
     def get_trans_energy(self, repton_id, trans_id, *args, **kwargs):
         t_vect = self.lattice.get_translation(trans_id)
@@ -334,7 +334,7 @@ class SlackElectrostatic(base.Rule):
         if repton_id == 0 or repton_id == self.particles.number - 1:
             old = self._slack_number(repton_id, self.particles.positions[repton_id])
             new = self._slack_number(repton_id, self.particles.positions[repton_id] + t_vect )
-            return self.el*(new-old)
+            return 0.5 * self.el*(new-old)
         
          #jesli nie hernia to nas nie interesuje
         if numpy.any( self.particles.positions[repton_id-1] != self.particles.positions[repton_id+1]):
@@ -342,7 +342,7 @@ class SlackElectrostatic(base.Rule):
        
         old = self._slack_number(repton_id, self.particles.positions[repton_id])
         new = self._slack_number(repton_id, self.particles.positions[repton_id] + t_vect )
-        return self.el*(new-old)
+        return 0.5 * self.el*(new-old)
         
 
 class Initializer(base.Dynamics):
@@ -454,7 +454,7 @@ class MolaSaver(object):
     def save_data(self, step):
         tmp="%s" % step;
         for i in symulator.particles.positions:
-            tmp = "%s %d %d 0" % (tmp, i[0],i[1])
+            tmp = "%s %d %d" % (tmp, i[0],i[1])
         self.output.write("%s\n" % tmp)
     
     def save_to_cms3d(self, step, origin):
@@ -612,11 +612,15 @@ class Correlation2(object):
     
 if __name__ == "__main__":
     
-    symulator = RealisticMetropolisModel(particles=10, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
-    korelacja = Correlation2(symulator,5)
-    print symulator.particles.positions
-    print korelacja.find_tauts()
-    korelacja.calculate()
+    natom = 200
+    symulator = RealisticMetropolisModel(particles=natom, link_length=1, hernia=1, crossing=1, el=1.38629, kappa=4.605, temp=2)
+    saver = MolaSaver(symulator,'trajectory.dat')
+    steps = natom**3 + 20000000
+    #thermalizacja
+    for step in xrange(0,steps):
+        if step >= natom**3 and step % natom == 0:
+            saver.save_data(step)
+        symulator.reconfigure()
     
     #test = RealisticMetropolisModel(particles=20, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
     

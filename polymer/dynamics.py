@@ -107,7 +107,7 @@ class CrossingBarrier(base.Rule):
 class HorizontalElectricField(base.Rule):
     """ Apply horizontal electric field"""
     def initialize(self, *args, **kwargs):
-        self.rate = numpy.exp(0.5*kwargs.get('epsilon'))
+        self.rate = numpy.exp(0.5 * kwargs.get('epsilon'))
         
     def get_update_list(self, repton_id, trans_id):
         return []
@@ -122,7 +122,7 @@ class HorizontalElectricField(base.Rule):
         return 1
 
 
-
+#UWAGA - tutaj jest sprzezenie w SlackElectrostatic - to jest zle zakodowane
 class Bending(base.Rule):
     def initialize(self, *args, **kwargs):
         self.kappa = kwargs.get('kappa')
@@ -186,9 +186,10 @@ class Bending(base.Rule):
         
     def _get_end_energy(self, vectors):
         energy = 0
+        #jesli jeden z wektrow slackiem -to nie daje wkladu energii
         if numpy.all(vectors[0]==0) or numpy.all(vectors[1]==0):
             return energy
-        
+        #bez sensu z tym -1 - ma byc normalnie i potem 1-skalar
         skalar = -1 * vectors[0][0]*vectors[1][0] + -1*vectors[0][1]*vectors[1][1]
         return 1 + skalar
             
@@ -216,7 +217,7 @@ class Bending(base.Rule):
             vectors = numpy.diff(tab_old, axis=0)
             energy_new = self._get_end_energy(vectors)
         
-            return 0.5 * self.kappa*(energy_new - energy_old)
+            return self.kappa*(energy_new - energy_old)
             
         #ogon
         if repton_id == self.particles.number-1:
@@ -235,7 +236,7 @@ class Bending(base.Rule):
             vectors = numpy.diff(tab_old, axis=0)
             energy_new = self._get_end_energy(vectors)
           
-            return 0.5 * self.kappa*(energy_new - energy_old)
+            return self.kappa*(energy_new - energy_old)
         
         
         hernia = numpy.all( self.particles.positions[repton_id-1] == self.particles.positions[repton_id+1])
@@ -267,12 +268,13 @@ class Bending(base.Rule):
             tab_old[0] = 1.*self.particles.positions[repton_id-1]
         
         vectors = numpy.diff(tab_old, axis=0)
+        
         energy_old = self._get_inter_energy(vectors)
         tab_old[2] = tab_old[2] + t_vect
         vectors_new = numpy.diff(tab_old, axis=0)
         energy_new = self._get_inter_energy(vectors_new)
-       
-        return 0.5 * self.kappa*(energy_new - energy_old)
+                
+        return self.kappa*(energy_new - energy_old)
         
     
     def next_id(self, repton_id):
@@ -334,15 +336,23 @@ class SlackElectrostatic(base.Rule):
         if repton_id == 0 or repton_id == self.particles.number - 1:
             old = self._slack_number(repton_id, self.particles.positions[repton_id])
             new = self._slack_number(repton_id, self.particles.positions[repton_id] + t_vect )
-            return 0.5 * self.el*(new-old)
+            return self.el*(new-old)
         
          #jesli nie hernia to nas nie interesuje
         if numpy.any( self.particles.positions[repton_id-1] != self.particles.positions[repton_id+1]):
             return 0 #bo rate = 1
        
+        #tutaj sa hernie
         old = self._slack_number(repton_id, self.particles.positions[repton_id])
         new = self._slack_number(repton_id, self.particles.positions[repton_id] + t_vect )
-        return 0.5 * self.el*(new-old)
+        
+        #zakladamy, ze jesli jest hernia to dajemy czynnik f o sa dwa w jednej komorce (choc nie slack)
+        if old > new:
+            new = new +1
+        else:
+            old =old + 1
+            
+        return self.el*(new-old)
         
 
 class Initializer(base.Dynamics):
@@ -622,12 +632,12 @@ if __name__ == "__main__":
             saver.save_data(step)
         symulator.reconfigure()
     
-    #test = RealisticMetropolisModel(particles=20, link_length=1, hernia=1, crossing=1, el=1, kappa=1, temp=2)
+    #test = RealisticMetropolisModel(particles=20, link_length=1, hernia=1, crossing=1, el=5, kappa=1, temp=2)
     
     #test.particles.positions = 1.* symulator.particles.positions
     
-    #for i in xrange(0,100000):
-        #symulator.reconfigure()
+    #for i in xrange(0,10):
+        #test.reconfigure()
         
         #test.particles.positions = 1.* symulator.particles.positions
         #test.motion_matrix.fill(1)
